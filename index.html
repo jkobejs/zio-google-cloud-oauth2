@@ -14,8 +14,22 @@
 </ul>
 
 <p>To use library publish it locally.</p>
-<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">libraryDependencies</span> <span class="o">+=</span> <span class="s">"com.jkobejs"</span> <span class="o">%%</span> <span class="s">"zio-google-cloud-oauth2"</span> <span class="o">%</span> <span class="s">"0.0.0+2-86d5a591-SNAPSHOT"</span>
+<div class="language-scala highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">libraryDependencies</span> <span class="o">+=</span> <span class="s">"com.jkobejs"</span> <span class="o">%%</span> <span class="s">"zio-google-cloud-oauth2"</span> <span class="o">%</span> <span class="s">"0.0.0+4-25917bf9-SNAPSHOT"</span>
 </code></pre></div></div>
+
+<h3 id="note-on-milestones">Note on milestones:</h3>
+<p>Our Notation for versions is:</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X.X.X
+^ ^ ^____Minor
+| |______Major
+|________Complete redesign (i.e scalaz 7 vs 8)  
+</code></pre></div></div>
+
+<p>All <code class="highlighter-rouge">x.x.x-Mx</code> releases are milestone releases. Thus, we do not guarantee binary compatibility or no api-breakage until
+a concrete version(i.e <code class="highlighter-rouge">0.0.1</code>). We aim to keep userland-apis relatively stable, but 
+internals shift as we find better/more performant abstractions.</p>
+
+<p>We will guarantee compatibility between minor versions (i.e 0.0.1 =&gt; 0.0.2) but not major versions (0.0.1 =&gt; 0.1.0)</p>
 
 <h2 id="server-to-server">Server to server</h2>
 <p><a href="server-2-server">Documentation</a> of server to server auth.</p>
