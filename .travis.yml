@@ -1,7 +1,13 @@
 language: scala
 dist: trusty
 jdk:
-  - oraclejdk11
+  - oraclejdk11a
+
+matrix:
+  include:
+    - scala: 2.12.10
+      env:
+        - SBT_VERSION=1.3.4
 
 stages:
   - name: test
@@ -19,12 +25,12 @@ jobs:
         - gem install sass
         - gem install jekyll -v 4.0.0
       script: 
-        - sbt check
+        - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION check
         - sbt +test:run
-        - sbt makeMicrosite
+        - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION makeMicrosite
       name: "Tests and scalafmt check"
     - stage: release
-      script: sbt -Dsbt.gigahorse=false ci-release
+      script: sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION -Dsbt.gigahorse=false ci-release
       name: "Release to sonatype"
 
 cache:
