@@ -3,6 +3,9 @@ dist: trusty
 jdk:
   - oraclejdk11
 
+scala:
+  - 2.12.10
+
 stages:
   - name: test
   - name: release
@@ -22,16 +25,10 @@ jobs:
         - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION check
         - sbt +test:run
         - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION makeMicrosite
-      scala: 2.12.10
-      env:
-        - SBT_VERSION=1.3.4
       name: "Tests and scalafmt check"
     - stage: release
       script:
         - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION -Dsbt.gigahorse=false ci-release
-      scala: 2.12.10
-        env:
-          - SBT_VERSION=1.3.4
       name: "Release to sonatype"
 
 cache:
