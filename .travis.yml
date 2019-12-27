@@ -22,13 +22,13 @@ jobs:
         - gem install sass
         - gem install jekyll -v 4.0.0
       script: 
-        - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION check
+        - sbt ++$TRAVIS_SCALA_VERSION check
         - sbt +test:run
-        - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION makeMicrosite
+        - sbt ++$TRAVIS_SCALA_VERSION makeMicrosite
       name: "Tests and scalafmt check"
     - stage: release
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION ^^$SBT_VERSION -Dsbt.gigahorse=false ci-release
+        - sbt ++$TRAVIS_SCALA_VERSION -Dsbt.gigahorse=false ci-release
       name: "Release to sonatype"
 
 cache:
