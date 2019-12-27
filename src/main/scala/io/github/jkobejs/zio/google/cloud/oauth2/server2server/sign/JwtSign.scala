@@ -14,6 +14,7 @@ trait JwtSign {
 
 object JwtSign {
   trait Service[R] {
+
     /**
      * Sign and create jwt token
      *

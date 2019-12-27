@@ -14,6 +14,7 @@ trait HttpClient {
 
 object HttpClient {
   trait Service[R] {
+
     /**
      * Makes http auth request.
      *

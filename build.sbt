@@ -36,7 +36,7 @@ scalacOptions ++= Seq(
   "-Xlint:_,-type-parameter-shadow",
   "-Ywarn-numeric-widen",
   "-Ywarn-unused:patvars,-implicits",
-  "-Ywarn-value-discard",
+  "-Ywarn-value-discard"
 ) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
   case Some((2, 12)) =>
     Seq(
