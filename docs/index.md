@@ -23,6 +23,21 @@ To use library publish it locally.
 libraryDependencies += "com.jkobejs" %% "zio-google-cloud-oauth2" % "{{site.zioGoogleCloudOauth2Version}}"
 ```
 
+### Note on milestones:
+Our Notation for versions is:
+```
+X.X.X
+^ ^ ^____Minor
+| |______Major
+|________Complete redesign (i.e scalaz 7 vs 8)  
+```
+
+All `x.x.x-Mx` releases are milestone releases. Thus, we do not guarantee binary compatibility or no api-breakage until
+a concrete version(i.e `0.0.1`). We aim to keep userland-apis relatively stable, but 
+internals shift as we find better/more performant abstractions.
+
+We will guarantee compatibility between minor versions (i.e 0.0.1 => 0.0.2) but not major versions (0.0.1 => 0.1.0)
+
 Server to server
 ----------------
 [Documentation][server-2-server] of server to server auth.
