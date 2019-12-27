@@ -124,8 +124,8 @@ val authResponse: ZIO[Any, Throwable, AuthResponse] = for {
 ```
 
 
-[authenticator]: 
-[jwt-sign]: 
-[http-client]: 
-[authenticator-error]: error
+[authenticator]: https://github.com/jkobejs/zio-google-cloud-oauth2/blob/master/src/main/scala/io/github/jkobejs/zio/google/cloud/oauth2/server2server/authenticator/Authenticator.scala
+[jwt-sign]: https://github.com/jkobejs/zio-google-cloud-oauth2/blob/master/src/main/scala/io/github/jkobejs/zio/google/cloud/oauth2/server2server/sign/JwtSign.scala
+[http-client]: https://github.com/jkobejs/zio-google-cloud-oauth2/blob/master/src/main/scala/io/github/jkobejs/zio/google/cloud/oauth2/server2server/http/HttpClient.scala
+[authenticator-error]: https://github.com/jkobejs/zio-google-cloud-oauth2/blob/master/src/main/scala/io/github/jkobejs/zio/google/cloud/oauth2/server2server/authenticator/AuthenticatorError.scala
 [google-server-to-server]: https://developers.google.com/identity/protocols/OAuth2ServiceAccount

@@ -122,6 +122,8 @@ micrositeCompilingDocsTool := WithMdoc
 micrositeGithubOwner := "jkobejs"
 micrositeGithubRepo := "zio-google-cloud-oauth2"
 micrositeBaseUrl := "zio-google-cloud-oauth2"
+micrositePushSiteWith := GitHub4s
+micrositeGithubToken := sys.env.get("GITHUB_TOKEN")
 includeFilter in Jekyll := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.md"
 
 enablePlugins(BuildInfoPlugin)
