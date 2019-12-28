@@ -104,6 +104,10 @@ libraryDependencies ++= Seq(
   case _ => Nil
 })
 
+// Skip scaladocs
+sources in (Compile,doc) := Seq.empty
+publishArtifact in (Compile, packageDoc) := false
+
 enablePlugins(MicrositesPlugin)
 micrositeTwitterCreator := "@jkobejs"
 micrositeConfigYaml := ConfigYml(

@@ -28,7 +28,7 @@ jobs:
       name: "Tests and scalafmt check"
     - stage: release
       script:
-        - sbt ++$TRAVIS_SCALA_VERSION -Dsbt.gigahorse=false ci-release
+        - sbt ++$TRAVIS_SCALA_VERSION ci-release
       name: "Release to sonatype"
 
 cache:
