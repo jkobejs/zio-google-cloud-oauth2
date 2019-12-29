@@ -108,6 +108,7 @@ libraryDependencies ++= Seq(
 publishArtifact in (Compile, packageDoc) := false
 
 enablePlugins(MicrositesPlugin)
+
 micrositeTwitterCreator := "@jkobejs"
 micrositeConfigYaml := ConfigYml(
   yamlCustomProperties = Map(
@@ -117,7 +118,10 @@ micrositeConfigYaml := ConfigYml(
     "zioVersion"                  -> libraryVersion.zio,
     "zioMacrosVersion"            -> libraryVersion.zioMacros,
     "betterMonadicForVersion"     -> libraryVersion.betterMonadicFor,
-    "zioGoogleCloudOauth2Version" -> version.value
+    "zioGoogleCloudOauth2Version" -> dynverGitDescribeOutput
+      .value
+      .map(_.ref.value.tail)
+      .getOrElse(throw new Exception("There's no output from dynver!"))
   )
 )
 micrositeAuthor := "Josip Grgurica"

@@ -12,7 +12,7 @@ such as those for web server, installed, and client-side applications.
 
 Quick start
 ------------
-The current version is **{{site.googleOauth4sVersion}}** for **Scala 2.12/13** with
+The current version is **{{site.zioGoogleCloudOauth2Version}}** for **Scala 2.12/13** with
 - [tsec][tsec] {{site.tsecVersion}}
 - [http4s][http4s] {{site.http4sVersion}}
 - [circe][circe] {{site.circeVersion}}
@@ -20,7 +20,7 @@ The current version is **{{site.googleOauth4sVersion}}** for **Scala 2.12/13** w
 - [zio-macros][zio-macros] {{site.zioMacrosVersion}}
 - [better-monadic-for][better-monadic-for] {{site.betterMonadicForVersion}}
 
-To use library publish it locally.
+To use library add this to `build.sbt` file:
 ```scala
 libraryDependencies += "com.jkobejs" %% "zio-google-cloud-oauth2" % "{{site.zioGoogleCloudOauth2Version}}"
 ```

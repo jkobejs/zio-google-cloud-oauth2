@@ -27,10 +27,18 @@ jobs:
         - sbt ++$TRAVIS_SCALA_VERSION makeMicrosite
       name: "Tests and scalafmt check"
     - stage: release
+      before_install:
+        - export PATH=${PATH}:./vendor/bundle
+      install:
+        - rvm use 2.6.0 --install --fuzzy
+        - gem update --system
+        - gem install sass
+        - gem install jekyll -v 4.0.0
       script:
         - sbt ++$TRAVIS_SCALA_VERSION ci-release
         - sh scripts/publishMicrosite.sh
       name: "Release to sonatype and publish docs"
+
 
 cache:
   directories:
