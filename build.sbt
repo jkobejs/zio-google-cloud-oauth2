@@ -106,6 +106,7 @@ libraryDependencies ++= Seq(
 
 // Skip scaladocs
 publishArtifact in (Compile, packageDoc) := false
+sources in (Compile, doc) := Seq()
 
 enablePlugins(MicrositesPlugin)
 
