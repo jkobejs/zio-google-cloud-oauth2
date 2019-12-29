@@ -112,14 +112,13 @@ enablePlugins(MicrositesPlugin)
 micrositeTwitterCreator := "@jkobejs"
 micrositeConfigYaml := ConfigYml(
   yamlCustomProperties = Map(
-    "tsecVersion"                 -> libraryVersion.tsec,
-    "http4sVersion"               -> libraryVersion.http4s,
-    "circeVersion"                -> libraryVersion.circe,
-    "zioVersion"                  -> libraryVersion.zio,
-    "zioMacrosVersion"            -> libraryVersion.zioMacros,
-    "betterMonadicForVersion"     -> libraryVersion.betterMonadicFor,
-    "zioGoogleCloudOauth2Version" -> dynverGitDescribeOutput
-      .value
+    "tsecVersion"             -> libraryVersion.tsec,
+    "http4sVersion"           -> libraryVersion.http4s,
+    "circeVersion"            -> libraryVersion.circe,
+    "zioVersion"              -> libraryVersion.zio,
+    "zioMacrosVersion"        -> libraryVersion.zioMacros,
+    "betterMonadicForVersion" -> libraryVersion.betterMonadicFor,
+    "zioGoogleCloudOauth2Version" -> dynverGitDescribeOutput.value
       .map(_.ref.value.tail)
       .getOrElse(throw new Exception("There's no output from dynver!"))
   )
