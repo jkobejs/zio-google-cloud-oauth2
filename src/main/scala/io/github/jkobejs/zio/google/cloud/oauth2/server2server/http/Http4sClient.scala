@@ -33,7 +33,8 @@ trait Http4sClient extends HttpClient {
                            .as[HttpAuthResponse]
                            .refineOrDie {
                              case failure: DecodeFailure => HttpError.ResponseParseError(failure.getMessage)
-                           } else
+                           }
+                       else
                          for {
                            responseBody <- response.as[String](monadErrorInstance, EntityDecoder.text[Task])
                            result <- Task.fail(

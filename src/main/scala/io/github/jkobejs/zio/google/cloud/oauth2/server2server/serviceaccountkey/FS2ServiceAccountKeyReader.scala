@@ -43,7 +43,9 @@ trait FS2ServiceAccountKeyReader extends ServiceAccountKeyReader with Blocking {
                         .mapError(_ => InvalidJsonFormat(path))
                   )
             )
-            .refineOrDie { case e: ServiceAccountKeyError => e }
+            .refineOrDie {
+              case error: ServiceAccountKeyError => error
+            }
       )
   }
 }

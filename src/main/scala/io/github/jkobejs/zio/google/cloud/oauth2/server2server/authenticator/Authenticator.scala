@@ -51,12 +51,11 @@ object Authenticator {
           (for {
             currentTimestamp <- clock.currentTime(TimeUnit.SECONDS)
             response         <- request(cloudApiConfig, cloudApiClaims, currentTimestamp)
-          } yield
-            AuthResponse(
-              accessToken = response.access_token,
-              tokenType = response.token_type,
-              expiresAt = Instant.ofEpochSecond(currentTimestamp + response.expires_in)
-            )).refineOrDie {
+          } yield AuthResponse(
+            accessToken = response.access_token,
+            tokenType = response.token_type,
+            expiresAt = Instant.ofEpochSecond(currentTimestamp + response.expires_in)
+          )).refineOrDie {
             case e: http.HttpError => AuthenticatorError.HttpError(e)
             case e: JwtSignError   => SignError(e)
           }

@@ -9,7 +9,10 @@ import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.{
   CloudApiClaims,
   CloudApiConfig
 }
-import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.{FS2ServiceAccountKeyReader, ServiceAccountKeyReader}
+import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.{
+  FS2ServiceAccountKeyReader,
+  ServiceAccountKeyReader
+}
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import zio.{Task, ZIO}
@@ -33,12 +36,10 @@ object DefaultAuthenticatorIntegrationSuite {
               val exec = rts.platform.executor.asEC
               BlazeClientBuilder[Task](exec).resource.toManaged
             }
-            .map(
-              client4s =>
-                new Live {
-                  val client: Client[zio.Task] = client4s
-                }
-            )
+            .map { client4s =>
+              new Live
+              val client: Client[zio.Task] = client4s
+            }
 
           for {
             serviceAccountKey <- serviceAccountKeyReader.provide(new FS2ServiceAccountKeyReader with Blocking.Live {})
