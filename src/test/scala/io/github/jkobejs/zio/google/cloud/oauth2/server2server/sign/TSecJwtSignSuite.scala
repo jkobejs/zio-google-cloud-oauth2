@@ -1,9 +1,8 @@
-package io.github.jkobejs.zio.google.cloud.oauth2.sign
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.sign
 
 import java.time.Instant
 
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.sign.JwtSignError.{InvalidBase64Scheme, InvalidKey}
-import io.github.jkobejs.zio.google.cloud.oauth2.server2server.sign.{Claims, JwtToken, TSecJwtSign}
 import zio.test.Assertion.equalTo
 import zio.test.{assertM, suite, testM}
 

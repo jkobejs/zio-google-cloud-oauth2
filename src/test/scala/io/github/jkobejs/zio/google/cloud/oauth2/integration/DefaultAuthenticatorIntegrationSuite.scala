@@ -9,7 +9,7 @@ import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.{
   CloudApiClaims,
   CloudApiConfig
 }
-import io.github.jkobejs.zio.google.cloud.oauth2.serviceaccountkey.{FS2ServiceAccountKeyReader, ServiceAccountKeyReader}
+import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.{FS2ServiceAccountKeyReader, ServiceAccountKeyReader}
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import zio.{Task, ZIO}

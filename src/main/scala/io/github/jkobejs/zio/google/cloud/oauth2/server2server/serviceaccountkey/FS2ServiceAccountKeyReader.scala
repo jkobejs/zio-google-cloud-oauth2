@@ -1,16 +1,16 @@
-package io.github.jkobejs.zio.google.cloud.oauth2.serviceaccountkey
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey
 
 import java.nio.file.{InvalidPathException, NoSuchFileException, Paths}
 
 import cats.effect.Blocker
 import io.circe.generic.auto._
 import io.circe.parser.decode
-import io.github.jkobejs.zio.google.cloud.oauth2.serviceaccountkey.ServiceAccountKeyError.{
+import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.ServiceAccountKeyError.{
   FileDoesNotExist,
   InvalidJsonFormat,
   InvalidPathError
 }
-import io.github.jkobejs.zio.google.cloud.oauth2.serviceaccountkey.ServiceAccountKeyReader.Service
+import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.ServiceAccountKeyReader.Service
 import zio.blocking.Blocking
 import zio.interop.catz._
 import zio.{RIO, Task, ZIO}

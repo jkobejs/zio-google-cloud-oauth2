@@ -6,7 +6,9 @@ section: "home"
 
 # Google Oauth 2.0 for Scala
 
-Effectfull API for [Google OAuth 2.0][google-oauth] flows for Scala. Currently it supports only server to server interaction.
+Effectful API for [Google OAuth 2.0][google-oauth] flows for Scala.
+Google APIs use the OAuth 2.0 protocol for authentication and authorization. Google supports common OAuth 2.0 scenarios
+such as those for web server, installed, and client-side applications.
 
 Quick start
 ------------
@@ -41,6 +43,10 @@ We will guarantee compatibility between minor versions (i.e 0.0.1 => 0.0.2) but 
 Server to server
 ----------------
 [Documentation][server-2-server] of server to server auth.
+
+Web server applications
+-----------------------
+Not Implemented!
 
 
 [google-oauth]: https://developers.google.com/identity/protocols/OAuth2

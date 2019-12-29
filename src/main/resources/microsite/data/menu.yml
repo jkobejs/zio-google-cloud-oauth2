@@ -2,6 +2,3 @@ options:
   - title: Server to server
     url: server-2-server/index.html
     menu_section: intro
-  - title: Service account key reader
-    url: service-account-key-reader/index.html
-    menu_section: intro

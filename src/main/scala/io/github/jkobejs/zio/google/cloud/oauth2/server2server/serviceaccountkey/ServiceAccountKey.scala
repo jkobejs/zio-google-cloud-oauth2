@@ -1,4 +1,4 @@
-package io.github.jkobejs.zio.google.cloud.oauth2.serviceaccountkey
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey
 
 /**
  * Google Cloud service account key created using the GCP Console or the gcloud command-line tool.

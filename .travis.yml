@@ -29,7 +29,8 @@ jobs:
     - stage: release
       script:
         - sbt ++$TRAVIS_SCALA_VERSION ci-release
-      name: "Release to sonatype"
+        - sh scripts/publishMicrosite.sh
+      name: "Release to sonatype and publish docs"
 
 cache:
   directories:

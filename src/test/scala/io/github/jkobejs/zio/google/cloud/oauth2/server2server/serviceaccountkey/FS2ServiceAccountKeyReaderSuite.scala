@@ -1,4 +1,4 @@
-package io.github.jkobejs.zio.google.cloud.oauth2.serviceaccountkey
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey
 
 import zio.test.Assertion.equalTo
 import zio.test.{assert, suite, testM}
