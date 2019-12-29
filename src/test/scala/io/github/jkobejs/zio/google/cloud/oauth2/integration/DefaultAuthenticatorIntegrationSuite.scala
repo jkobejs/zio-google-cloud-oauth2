@@ -15,11 +15,11 @@ import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey
 }
 import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
-import zio.{Task, ZIO}
 import zio.blocking.Blocking
 import zio.interop.catz._
 import zio.test.Assertion.equalTo
 import zio.test.{assert, suite, testM}
+import zio.{Task, ZIO}
 
 object DefaultAuthenticatorIntegrationSuite {
   val defaultAuthenticatorIntegrationSuite =
@@ -37,8 +37,9 @@ object DefaultAuthenticatorIntegrationSuite {
               BlazeClientBuilder[Task](exec).resource.toManaged
             }
             .map { client4s =>
-              new Live
-              val client: Client[zio.Task] = client4s
+              new Live {
+                val client: Client[zio.Task] = client4s
+              }
             }
 
           for {
