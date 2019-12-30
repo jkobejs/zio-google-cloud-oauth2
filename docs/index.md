@@ -1,12 +1,16 @@
 ---
 layout: home
-title: "Home"
-section: "home"
 ---
 
 # Google Oauth 2.0 for Scala
 
 Effectful API for [Google OAuth 2.0][google-oauth] flows for Scala.
+
+[![Build Status](https://travis-ci.com/jkobejs/zio-google-cloud-oauth2.svg?branch=master)](https://travis-ci.com/jkobejs/zio-google-cloud-oauth2)
+[![Latest Version](https://maven-badges.herokuapp.com/maven-central/io.github.jkobejs/zio-google-cloud-oauth2_2.12/badge.svg)](https://search.maven.org/#search%7Cga%7C1%7Cg%3A"io.github.jkobejs"%20zio-google-cloud-oauth2)
+[![License](http://img.shields.io/:license-Apache%202-green.svg)](http://www.apache.org/licenses/LICENSE-2.0.txt)
+
+
 Google APIs use the OAuth 2.0 protocol for authentication and authorization. Google supports common OAuth 2.0 scenarios
 such as those for web server, installed, and client-side applications.
 

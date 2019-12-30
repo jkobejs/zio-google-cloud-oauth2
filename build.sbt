@@ -6,7 +6,7 @@ val allScala  = Seq("2.13.1", mainScala)
 inThisBuild(
   List(
     organization := "io.github.jkobejs",
-    homepage := Some(url("https://github.com/jkobejs/zio-goolge-cloud-oauth2")),
+    homepage := Some(url("https://github.com/jkobejs/zio-google-cloud-oauth2")),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
       Developer(
@@ -130,6 +130,8 @@ micrositeGithubRepo := "zio-google-cloud-oauth2"
 micrositeBaseUrl := "zio-google-cloud-oauth2"
 micrositePushSiteWith := GitHub4s
 micrositeGithubToken := sys.env.get("GITHUB_TOKEN")
+micrositeDocumentationUrl := "server-2-server"
+micrositeTwitterCreator := "@jkobejs"
 includeFilter in Jekyll := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.md"
 
 enablePlugins(BuildInfoPlugin)
