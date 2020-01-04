@@ -31,6 +31,7 @@ scalacOptions ++= Seq(
   "-Yrangepos",
   "-feature",
   "-language:higherKinds",
+  "-language:implicitConversions",
   "-language:existentials",
   "-unchecked",
   "-Xlint:_,-type-parameter-shadow",
@@ -65,6 +66,8 @@ lazy val libraryVersion = new {
   val zioInteropCats   = "2.0.0.0-RC10"
   val zioMacros        = "0.6.0"
   val betterMonadicFor = "0.3.1"
+  val simulacrum       = "1.0.0"
+  val magnolia         = "0.12.0"
 }
 
 lazy val library =
@@ -82,6 +85,8 @@ lazy val library =
     val zioMacros         = "dev.zio"            %% "zio-macros-core"     % libraryVersion.zioMacros
     val zioMacrosTest     = "dev.zio"            %% "zio-macros-test"     % libraryVersion.zioMacros
     val betterMonadicFor  = "com.olegpy"         %% "better-monadic-for"  % libraryVersion.betterMonadicFor
+    val simulacrum        = "org.typelevel"      %% "simulacrum"          % libraryVersion.simulacrum
+    val magnolia          = "com.propensive"     %% "magnolia"            % libraryVersion.magnolia
   }
 
 libraryDependencies ++= Seq(
@@ -95,6 +100,8 @@ libraryDependencies ++= Seq(
   library.zioMacrosTest,
   library.zioTest    % Test,
   library.zioTestSbt % Test,
+  library.simulacrum,
+  library.magnolia,
   compilerPlugin(library.betterMonadicFor)
 ) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
   case Some((2, x)) if x <= 12 =>
