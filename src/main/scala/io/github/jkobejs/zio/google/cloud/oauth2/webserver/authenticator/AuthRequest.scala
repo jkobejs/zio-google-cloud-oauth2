@@ -1,5 +1,6 @@
 package io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator
-import io.github.jkobejs.zio.google.cloud.oauth2.common.UrlEncodedWriter
+
+import io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding.UrlEncodedWriter
 
 final case class AuthRequest(
   client_id: String,

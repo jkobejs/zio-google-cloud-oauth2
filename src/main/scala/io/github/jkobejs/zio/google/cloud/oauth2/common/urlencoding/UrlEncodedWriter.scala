@@ -1,4 +1,5 @@
-package io.github.jkobejs.zio.google.cloud.oauth2.common
+package io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding
+
 import java.net.URLEncoder
 
 import magnolia._
@@ -33,5 +34,4 @@ object UrlEncodedWriter extends UrlEncodedWriterMagnolia {
   implicit val string: UrlEncodedWriter[String]   = s => URLEncoder.encode(s, "UTF-8")
   implicit val long: UrlEncodedWriter[Long]       = _.toString
   implicit val boolean: UrlEncodedWriter[Boolean] = _.toString
-
 }
