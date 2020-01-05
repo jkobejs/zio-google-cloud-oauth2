@@ -68,25 +68,29 @@ lazy val libraryVersion = new {
   val betterMonadicFor = "0.3.1"
   val simulacrum       = "1.0.0"
   val magnolia         = "0.12.0"
+  val sttp             = "2.0.0-RC5"
 }
 
 lazy val library =
   new {
-    val tsecCommon        = "io.github.jmcardon" %% "tsec-common"         % libraryVersion.tsec
-    val tsecJWTSig        = "io.github.jmcardon" %% "tsec-jwt-sig"        % libraryVersion.tsec
-    val http4sBlazeClient = "org.http4s"         %% "http4s-blaze-client" % libraryVersion.http4s
-    val http4sCirce       = "org.http4s"         %% "http4s-circe"        % libraryVersion.http4s
-    val circeCore         = "io.circe"           %% "circe-core"          % libraryVersion.circe
-    val circeGeneric      = "io.circe"           %% "circe-generic"       % libraryVersion.circe
-    val zio               = "dev.zio"            %% "zio"                 % libraryVersion.zio
-    val zioInteropCats    = "dev.zio"            %% "zio-interop-cats"    % libraryVersion.zioInteropCats
-    val zioTest           = "dev.zio"            %% "zio-test"            % libraryVersion.zio
-    val zioTestSbt        = "dev.zio"            %% "zio-test-sbt"        % libraryVersion.zio
-    val zioMacros         = "dev.zio"            %% "zio-macros-core"     % libraryVersion.zioMacros
-    val zioMacrosTest     = "dev.zio"            %% "zio-macros-test"     % libraryVersion.zioMacros
-    val betterMonadicFor  = "com.olegpy"         %% "better-monadic-for"  % libraryVersion.betterMonadicFor
-    val simulacrum        = "org.typelevel"      %% "simulacrum"          % libraryVersion.simulacrum
-    val magnolia          = "com.propensive"     %% "magnolia"            % libraryVersion.magnolia
+    val tsecCommon        = "io.github.jmcardon"           %% "tsec-common"                   % libraryVersion.tsec
+    val tsecJWTSig        = "io.github.jmcardon"           %% "tsec-jwt-sig"                  % libraryVersion.tsec
+    val http4sBlazeClient = "org.http4s"                   %% "http4s-blaze-client"           % libraryVersion.http4s
+    val http4sCirce       = "org.http4s"                   %% "http4s-circe"                  % libraryVersion.http4s
+    val circeCore         = "io.circe"                     %% "circe-core"                    % libraryVersion.circe
+    val circeGeneric      = "io.circe"                     %% "circe-generic"                 % libraryVersion.circe
+    val zio               = "dev.zio"                      %% "zio"                           % libraryVersion.zio
+    val zioInteropCats    = "dev.zio"                      %% "zio-interop-cats"              % libraryVersion.zioInteropCats
+    val zioTest           = "dev.zio"                      %% "zio-test"                      % libraryVersion.zio
+    val zioTestSbt        = "dev.zio"                      %% "zio-test-sbt"                  % libraryVersion.zio
+    val zioMacros         = "dev.zio"                      %% "zio-macros-core"               % libraryVersion.zioMacros
+    val zioMacrosTest     = "dev.zio"                      %% "zio-macros-test"               % libraryVersion.zioMacros
+    val betterMonadicFor  = "com.olegpy"                   %% "better-monadic-for"            % libraryVersion.betterMonadicFor
+    val simulacrum        = "org.typelevel"                %% "simulacrum"                    % libraryVersion.simulacrum
+    val magnolia          = "com.propensive"               %% "magnolia"                      % libraryVersion.magnolia
+    val sttp              = "com.softwaremill.sttp.client" %% "core"                          % libraryVersion.sttp
+    val sttpCirce         = "com.softwaremill.sttp.client" %% "circe"                         % libraryVersion.sttp
+    val sttpZioBackend    = "com.softwaremill.sttp.client" %% "async-http-client-backend-zio" % libraryVersion.sttp
   }
 
 libraryDependencies ++= Seq(
@@ -102,6 +106,9 @@ libraryDependencies ++= Seq(
   library.zioTestSbt % Test,
   library.simulacrum,
   library.magnolia,
+  library.sttp,
+  library.sttpCirce,
+  library.sttpZioBackend,
   compilerPlugin(library.betterMonadicFor)
 ) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
   case Some((2, x)) if x <= 12 =>
