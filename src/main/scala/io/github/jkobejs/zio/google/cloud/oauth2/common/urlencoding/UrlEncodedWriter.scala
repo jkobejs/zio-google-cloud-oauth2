@@ -17,11 +17,11 @@ trait UrlEncodedWriterMagnolia {
   def combine[A](cc: CaseClass[UrlEncodedWriter, A]): UrlEncodedWriter[A] =
     (a: A) =>
       cc.parameters
+        .filterNot(p => p.typeclass.toUrlEncoded(p.dereference(a)).isEmpty)
         .map { p =>
           p.label + "=" + p.typeclass.toUrlEncoded(p.dereference(a))
         }
         .toList
-        .filterNot(_.isEmpty)
         .mkString("&")
   def gen[A]: UrlEncodedWriter[A] = macro Magnolia.gen[A]
 }

@@ -118,6 +118,8 @@ libraryDependencies ++= Seq(
   case _ => Nil
 })
 
+testFrameworks ++= Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
+
 // Skip scaladocs
 sources in (Compile, doc) := Seq()
 

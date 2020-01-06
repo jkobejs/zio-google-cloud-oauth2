@@ -1,8 +1,8 @@
 package io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator
 
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.http._
+import zio.ZIO
 import zio.macros.annotation.accessible
-import zio.{UIO, URIO, ZIO}
 
 /**
  * `Authenticator` provides api for performing Google Web server OAuth 2.0 flow.
@@ -17,15 +17,31 @@ trait Authenticator {
 
 object Authenticator {
 
-  trait Service[R] {
+  /**
+   * Creates authorization url that should be used to redirect Google user to consent prompt
+   * @param cloudApiConfig [[CloudApiConfig]] - Google Cloud client app configuration
+   * @param authRequestParams [[AuthRequestParams]] - Authorization request parameters. Most of the time, you'd only want to set `scope`, leaving the rest of arguments default. If `redirect_uri` is not provided, it will be set to a first element from [[CloudApiConfig]].redirect_uris list
+   * @return authorization url
+   */
+  def createAuthUrl(cloudApiConfig: CloudApiConfig, authRequestParams: AuthRequestParams): String = {
+    import io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding.UrlEncodedWriter.ops._
 
-    /**
-     * Creates authorization url that should be used to redirect Google user to consent prompt
-     * @param cloudApiConfig [[CloudApiConfig]] - Google Cloud client app configuration
-     * @param authRequestParams [[AuthRequestParams]] - Authorization request parameters. Most of the time, you'd only want to set `scope`, leaving the rest of arguments default. If `redirect_uri` is not provided, it will be set to a first element from [[CloudApiConfig]].redirect_uris list
-     * @return authorization url
-     */
-    def createAuthUrl(cloudApiConfig: CloudApiConfig, authRequestParams: AuthRequestParams): URIO[R, String]
+    val authReqQueryParamsEncoded = AuthRequest(
+      cloudApiConfig.client_id,
+      authRequestParams.redirect_uri.getOrElse(cloudApiConfig.redirect_uris.head),
+      authRequestParams.scope,
+      authRequestParams.access_type,
+      authRequestParams.state,
+      authRequestParams.include_granted_scopes,
+      authRequestParams.login_hint,
+      authRequestParams.prompt,
+      authRequestParams.response_type
+    ).toUrlEncoded
+
+    s"${cloudApiConfig.auth_uri}?$authReqQueryParamsEncoded"
+  }
+
+  trait Service[R] {
 
     def authenticate(
       cloudApiConfig: CloudApiConfig,
@@ -40,26 +56,9 @@ object Authenticator {
 
   trait Default extends Authenticator {
 
-    import io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding.UrlEncodedWriter.ops._
     val httpClient: HttpClient.Service[Any]
 
     override val authenticator: Service[Any] = new Service[Any] {
-
-      override def createAuthUrl(cloudApiConfig: CloudApiConfig, authRequestParams: AuthRequestParams): UIO[String] = {
-        val authReqQueryParamsEncoded = AuthRequest(
-          cloudApiConfig.client_id,
-          authRequestParams.redirect_uri.getOrElse(cloudApiConfig.redirect_uris.head),
-          authRequestParams.scope,
-          authRequestParams.access_type,
-          authRequestParams.state,
-          authRequestParams.include_granted_scopes,
-          authRequestParams.login_hint,
-          authRequestParams.prompt,
-          authRequestParams.response_type
-        ).toUrlEncoded
-
-        ZIO.succeed(s"${cloudApiConfig.auth_uri}?$authReqQueryParamsEncoded")
-      }
 
       override def authenticate(
         cloudApiConfig: CloudApiConfig,
