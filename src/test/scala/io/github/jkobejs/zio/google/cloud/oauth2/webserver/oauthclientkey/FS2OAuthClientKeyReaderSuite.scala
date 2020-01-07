@@ -1,5 +1,6 @@
 package io.github.jkobejs.zio.google.cloud.oauth2.webserver.oauthclientkey
 
+import cats.data.NonEmptyList
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.oauthclientkey.OAuthClientKeyError.{
   FileDoesNotExist,
   InvalidJsonFormat,
@@ -26,7 +27,7 @@ object FS2OAuthClientKeyReaderSuite {
             token_uri = "https://oauth2.googleapis.com/token",
             auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs",
             client_secret = "client_secret",
-            redirect_uris = List("http://localhost:8080")
+            redirect_uris = NonEmptyList.of("http://localhost:8080")
           )
         )
       )

@@ -8,9 +8,9 @@ import zio.interop.catz._
 import zio.{Task, ZIO}
 
 trait Http4sClient extends HttpClient {
-  implicit private val httpAccessRequestEncoder   = jsonEncoderOf[Task, HttpAccessRequest]
+  implicit private val httpAccessRequestEncoder   = jsonEncoderOf[Task, HttpAccessRequestBody]
   implicit private val httpAccessResponseDecoder  = jsonOf[Task, HttpAccessResponse]
-  implicit private val httpRefreshRequestEncoder  = jsonEncoderOf[Task, HttpRefreshRequest]
+  implicit private val httpRefreshRequestEncoder  = jsonEncoderOf[Task, HttpRefreshRequestBody]
   implicit private val httpRefreshResponseDecoder = jsonOf[Task, HttpRefreshResponse]
 
   val client: Client[Task]
@@ -25,7 +25,7 @@ trait Http4sClient extends HttpClient {
                       HttpError.UriParseError(error.sanitized)
                   }
         request4s = Request[Task](method = Method.POST, uri = uri4s).withEntity(
-          request
+          request.httpAccessRequestBody
         )
         response <- client.fetch[HttpAccessResponse](request4s)(
                      response =>
@@ -57,7 +57,7 @@ trait Http4sClient extends HttpClient {
                       HttpError.UriParseError(error.sanitized)
                   }
         request4s = Request[Task](method = Method.POST, uri = uri4s).withEntity(
-          request
+          request.httpRefreshRequestBody
         )
         response <- client.fetch[HttpRefreshResponse](request4s)(
                      response =>

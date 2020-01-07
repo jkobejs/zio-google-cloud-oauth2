@@ -6,6 +6,8 @@ import io.github.jkobejs.zio.google.cloud.oauth2.webserver.http._
 
 object Fixtures {
 
+  val currentTime = 1000L
+
   val cloudApiConfig: CloudApiConfig = CloudApiConfig(
     "client_id",
     "project_id",

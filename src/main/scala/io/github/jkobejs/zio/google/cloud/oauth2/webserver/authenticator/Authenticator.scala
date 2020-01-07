@@ -1,7 +1,11 @@
 package io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator
 
+import java.time.Instant
+import java.util.concurrent.TimeUnit
+
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.http._
 import zio.ZIO
+import zio.clock.Clock
 import zio.macros.annotation.accessible
 
 /**
@@ -56,6 +60,7 @@ object Authenticator {
 
   trait Default extends Authenticator {
 
+    val clock: Clock.Service[Any]
     val httpClient: HttpClient.Service[Any]
 
     override val authenticator: Service[Any] = new Service[Any] {
@@ -64,41 +69,51 @@ object Authenticator {
         cloudApiConfig: CloudApiConfig,
         authorizationCode: String
       ): ZIO[Any, AuthenticationError, AccessResponse] =
-        httpClient
-          .authenticate(
-            HttpAccessRequest(
-              cloudApiConfig.token_uri,
-              HttpAccessRequestBody(
-                authorizationCode,
-                cloudApiConfig.redirect_uris.head,
-                cloudApiConfig.client_id,
-                cloudApiConfig.client_secret
-              )
-            )
-          )
-          .map(
-            response =>
-              AccessResponse(response.access_token, response.token_type, response.expires_in, response.refresh_token)
-          )
-          .refineOrDie {
-            case e: HttpError => AuthenticationError.HttpError(e)
-          }
+        (for {
+          response <- httpClient
+                       .authenticate(
+                         HttpAccessRequest(
+                           cloudApiConfig.token_uri,
+                           HttpAccessRequestBody(
+                             authorizationCode,
+                             cloudApiConfig.redirect_uris.head,
+                             cloudApiConfig.client_id,
+                             cloudApiConfig.client_secret
+                           )
+                         )
+                       )
+          currentTimestamp <- clock.currentTime(TimeUnit.SECONDS)
+        } yield AccessResponse(
+          response.access_token,
+          response.token_type,
+          Instant.ofEpochSecond(currentTimestamp + response.expires_in),
+          response.refresh_token
+        )).refineOrDie {
+          case e: HttpError => AuthenticationError.HttpError(e)
+        }
 
       override def refreshToken(
         cloudApiConfig: CloudApiConfig,
         refreshToken: String
       ): ZIO[Any, AuthenticationError, RefreshResponse] =
-        httpClient
-          .refreshToken(
-            HttpRefreshRequest(
-              cloudApiConfig.token_uri,
-              HttpRefreshRequestBody(refreshToken, cloudApiConfig.client_id, cloudApiConfig.client_secret)
-            )
-          )
-          .map(response => RefreshResponse(response.access_token, response.token_type, response.expires_in))
-          .refineOrDie {
-            case e: HttpError => AuthenticationError.HttpError(e)
-          }
+        (for {
+          response <- httpClient
+                       .refreshToken(
+                         HttpRefreshRequest(
+                           cloudApiConfig.token_uri,
+                           HttpRefreshRequestBody(refreshToken, cloudApiConfig.client_id, cloudApiConfig.client_secret)
+                         )
+                       )
+          currentTimestamp <- clock.currentTime(TimeUnit.SECONDS)
+        } yield RefreshResponse(
+          response.access_token,
+          response.token_type,
+          Instant.ofEpochSecond(currentTimestamp + response.expires_in)
+        )).refineOrDie {
+          case e: HttpError => AuthenticationError.HttpError(e)
+        }
     }
   }
+
+  trait Live extends Default with Http4sClient with Clock.Live
 }

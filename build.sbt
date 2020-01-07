@@ -77,6 +77,8 @@ lazy val library =
     val tsecJWTSig        = "io.github.jmcardon"           %% "tsec-jwt-sig"                  % libraryVersion.tsec
     val http4sBlazeClient = "org.http4s"                   %% "http4s-blaze-client"           % libraryVersion.http4s
     val http4sCirce       = "org.http4s"                   %% "http4s-circe"                  % libraryVersion.http4s
+    val http4sDsl         = "org.http4s"                   %% "http4s-dsl"                    % libraryVersion.http4s
+    val http4sBlazeServer = "org.http4s"                   %% "http4s-blaze-server"           % libraryVersion.http4s
     val circeCore         = "io.circe"                     %% "circe-core"                    % libraryVersion.circe
     val circeGeneric      = "io.circe"                     %% "circe-generic"                 % libraryVersion.circe
     val zio               = "dev.zio"                      %% "zio"                           % libraryVersion.zio
@@ -98,6 +100,8 @@ libraryDependencies ++= Seq(
   library.tsecJWTSig,
   library.http4sBlazeClient,
   library.http4sCirce,
+  library.http4sDsl,
+  library.http4sBlazeServer,
   library.zio,
   library.zioInteropCats,
   library.zioMacros,
@@ -154,7 +158,8 @@ enablePlugins(BuildInfoPlugin)
 buildInfoKeys := Seq[BuildInfoKey](
   name,
   version,
-  "serviceAccountKeyPath" -> sys.env.getOrElse("SERVICE_ACCOUNT_KEY_PATH", "")
+  "serviceAccountKeyPath" -> sys.env.getOrElse("SERVICE_ACCOUNT_KEY_PATH", ""),
+  "oauthClientKeyPath"    -> sys.env.getOrElse("OAUTH_CLIENT_KEY_PATH", "")
 )
 buildInfoPackage := "io.github.jkobejs.zio.google.cloud.oauth2"
 

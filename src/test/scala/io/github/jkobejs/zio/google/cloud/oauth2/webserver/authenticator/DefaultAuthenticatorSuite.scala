@@ -1,11 +1,14 @@
 package io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator
 
+import java.time.Instant
+import java.util.concurrent.TimeUnit
+
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.Fixtures
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.http._
 import zio.Managed
 import zio.test.Assertion._
 import zio.test._
-import zio.test.mock.Expectation
+import zio.test.mock.{Expectation, MockClock}
 
 object DefaultAuthenticatorSuite {
 
@@ -24,22 +27,31 @@ object DefaultAuthenticatorSuite {
 
       val app = Authenticator.>.authenticate(Fixtures.cloudApiConfig, "code_123")
 
+      val clockMock = MockClock.currentTime(equalTo(TimeUnit.SECONDS)).returns(Expectation.value(Fixtures.currentTime))
+
       val httpClientMock: Managed[Nothing, HttpClient] = HttpClient
         .authenticate(equalTo(Fixtures.httpAccessRequest))
         .returns(Expectation.value(Fixtures.httpAccessResponse))
 
-      val mockEnv = httpClientMock.map { httpC =>
-        new Authenticator.Default {
-          override val httpClient = httpC.httpClient
-        }
+      val combinedEnv = (clockMock &&& httpClientMock).map {
+        case (testC, httpC) =>
+          new Authenticator.Default {
+            override val clock      = testC.clock
+            override val httpClient = httpC.httpClient
+          }
       }
 
       for {
-        result <- app.provideManaged(mockEnv)
+        result <- app.provideManaged(combinedEnv)
       } yield assert(
         result,
         equalTo(
-          AccessResponse("access_token_123", "Bearer", 123L, "refresh_token_123")
+          AccessResponse(
+            "access_token_123",
+            "Bearer",
+            Instant.ofEpochSecond(Fixtures.currentTime + Fixtures.httpAccessResponse.expires_in),
+            "refresh_token_123"
+          )
         )
       )
     },
@@ -47,23 +59,31 @@ object DefaultAuthenticatorSuite {
 
       val app = Authenticator.>.refreshToken(Fixtures.cloudApiConfig, "refresh_token_123")
 
+      val clockMock = MockClock.currentTime(equalTo(TimeUnit.SECONDS)).returns(Expectation.value(Fixtures.currentTime))
+
       val httpClientMock: Managed[Nothing, HttpClient] =
         HttpClient
           .refreshToken(equalTo(Fixtures.httpRefreshRequest))
           .returns(Expectation.value(Fixtures.httpRefreshResponse))
 
-      val mockEnv = httpClientMock.map { httpC =>
-        new Authenticator.Default {
-          override val httpClient = httpC.httpClient
-        }
+      val combinedEnv = (clockMock &&& httpClientMock).map {
+        case (testC, httpC) =>
+          new Authenticator.Default {
+            override val clock      = testC.clock
+            override val httpClient = httpC.httpClient
+          }
       }
 
       for {
-        result <- app.provideManaged(mockEnv)
+        result <- app.provideManaged(combinedEnv)
       } yield assert(
         result,
         equalTo(
-          RefreshResponse("access_token_234", "Bearer", 123L)
+          RefreshResponse(
+            "access_token_234",
+            "Bearer",
+            Instant.ofEpochSecond(Fixtures.currentTime + Fixtures.httpRefreshResponse.expires_in)
+          )
         )
       )
     },
@@ -71,18 +91,23 @@ object DefaultAuthenticatorSuite {
 
       val app = Authenticator.>.refreshToken(Fixtures.cloudApiConfig, "refresh_token_123")
 
+      val clockMock = MockClock.currentTime(equalTo(TimeUnit.SECONDS)).returns(Expectation.value(Fixtures.currentTime))
+
       val httpClientMock: Managed[Nothing, HttpClient] =
         HttpClient
           .refreshToken(equalTo(Fixtures.httpRefreshRequest))
           .returns(Expectation.failure(HttpError.ResponseParseError("error")))
 
-      val mockEnv = httpClientMock.map { httpC =>
-        new Authenticator.Default {
-          override val httpClient = httpC.httpClient
-        }
+      val combinedEnv = (clockMock &&& httpClientMock).map {
+        case (testC, httpC) =>
+          new Authenticator.Default {
+            override val clock      = testC.clock
+            override val httpClient = httpC.httpClient
+          }
       }
+
       assertM(
-        app.provideManaged(mockEnv).either,
+        app.provideManaged(combinedEnv).either,
         equalTo(Left(AuthenticationError.HttpError(HttpError.ResponseParseError("error"))))
       )
     }
