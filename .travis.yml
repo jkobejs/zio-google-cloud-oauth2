@@ -23,7 +23,7 @@ jobs:
         - gem install jekyll -v 4.0.0
       script: 
         - sbt ++$TRAVIS_SCALA_VERSION check
-        - sbt +test:run
+        - sbt +test
         - sbt ++$TRAVIS_SCALA_VERSION makeMicrosite
       name: "Tests and scalafmt check"
     - stage: release
