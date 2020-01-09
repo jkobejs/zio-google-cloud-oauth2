@@ -63,10 +63,29 @@ Since it reads file from filesystem, it requires blocking execution context whic
 
 ```scala mdoc:invisible
 import java.util.concurrent.TimeUnit
+import io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator._
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.oauthclientkey.{FS2OAuthClientKeyReader, OAuthClientKey, OAuthClientKeyError, OAuthClientKeyReader}
 import zio._
-import zio.blocking.Blocking
+import zio.blocking._
+import zio.interop.catz._
+import cats.data.NonEmptyList
+import org.http4s.client._
+import org.http4s.client.blaze._
 
+val cloudApiConfig = CloudApiConfig(
+    "client_id",
+    "project_id",
+    "https://accounts.google.com/o/oauth2/auth",
+    "https://oauth2.googleapis.com/token",
+    "secret123",
+    NonEmptyList.of("http://localhost:8081", "http://localhost:8082")
+  )
+
+val authorizationCode = "code_123"
+val refresh_token = "refresh_token_123"
+```
+
+```scala mdoc:silent
 val oAuthClientKeyReader: ZIO[OAuthClientKeyReader, OAuthClientKeyError, OAuthClientKey] = OAuthClientKeyReader.>.readKey("/path/to/client_secret.json")
 val oAuthClientKey: IO[OAuthClientKeyError, OAuthClientKey] = oAuthClientKeyReader.provide(new FS2OAuthClientKeyReader with Blocking.Live {})
 ```
@@ -186,7 +205,7 @@ val authenticatorLiveManaged: ZManaged[Any, Throwable, Authenticator.Live] = ZIO
       )
   }
 
-val accessResponse: ZIO[Any, AuthenticationError, AccessResponse] = Authenticator.>.authenticate(cloudApiConfig, authorizationCode).provideManaged(authenticatorLiveManaged)
+val accessResponse: ZIO[Any, Throwable, AccessResponse] = Authenticator.>.authenticate(cloudApiConfig, authorizationCode).provideManaged(authenticatorLiveManaged)
 ```
 
 #### Refresh an access token (offline access)
@@ -219,8 +238,13 @@ Access tokens periodically expire. You can refresh an access token without promp
 Refresh token does not expire so it is advisable to persist it to database/file system so you can use it to access a Google API when the user is not present.
 
 To refresh the access token, you can use the same `Authenticator.Live` managed resource as above:
+
+```scala mdoc:invisible
+import java.time.Instant
+val accessResponseVal = AccessResponse("access_token_123", "Bearer", Instant.ofEpochSecond(123L), "refresh_token_123")
+```
 ```scala mdoc:silent
-val refreshResponse: ZIO[Any, AuthenticationError, RefreshResponse] = Authenticator.>.refreshToken(cloudApiConfig, accessResponse.refreshToken).provideManaged(authenticatorLiveManaged)
+val refreshResponse: ZIO[Any, Throwable, RefreshResponse] = Authenticator.>.refreshToken(cloudApiConfig, accessResponseVal.refreshToken).provideManaged(authenticatorLiveManaged)
 ```
 
 ###### Caching
