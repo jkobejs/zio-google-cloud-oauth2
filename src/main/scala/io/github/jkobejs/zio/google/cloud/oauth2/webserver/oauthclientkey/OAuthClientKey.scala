@@ -4,8 +4,6 @@ import cats.data.NonEmptyList
 
 /**
  * Google Cloud OAuth Client ID key downloaded from  https://console.developers.google.com/apis/credentials.
- *
- * @see https://cloud.google.com/iam/docs/creating-managing-service-account-keys
  */
 final case class OAuthClientKey(
   client_id: String,

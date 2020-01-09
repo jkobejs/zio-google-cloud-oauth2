@@ -23,6 +23,7 @@ object Authenticator {
 
   /**
    * Creates authorization url that should be used to redirect Google user to consent prompt
+   *
    * @param cloudApiConfig [[CloudApiConfig]] - Google Cloud client app configuration
    * @param authRequestParams [[AuthRequestParams]] - Authorization request parameters. Most of the time, you'd only want to set `scope`, leaving the rest of arguments default. If `redirect_uri` is not provided, it will be set to a first element from [[CloudApiConfig]].redirect_uris list
    * @return authorization url
@@ -47,11 +48,25 @@ object Authenticator {
 
   trait Service[R] {
 
+    /**
+     * Performs authentication on server. As per google cloud documentation access token will be valid for next hour
+     *
+     * @param cloudApiConfig [[CloudApiConfig]]
+     * @param authorizationCode authorization code obtained by user consent from redirection uri
+     * @return [[AccessResponse]]
+     */
     def authenticate(
       cloudApiConfig: CloudApiConfig,
       authorizationCode: String
     ): ZIO[R, AuthenticationError, AccessResponse]
 
+    /**
+     * Performs access token refresh. As per google cloud documentation access token will be valid for next hour
+     *
+     * @param cloudApiConfig
+     * @param refreshToken refresh token used for obtaining new access token. As per google cloud documentation refresh token never expires.
+     * @return [[RefreshResponse]]
+     */
     def refreshToken(
       cloudApiConfig: CloudApiConfig,
       refreshToken: String

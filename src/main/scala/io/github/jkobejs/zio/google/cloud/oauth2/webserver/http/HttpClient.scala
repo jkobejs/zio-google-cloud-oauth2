@@ -14,10 +14,22 @@ trait HttpClient {
 object HttpClient {
   trait Service[R] {
 
+    /**
+     * Makes http authentication request
+     *
+     * @param request [[HttpAccessRequest]]
+     * @return [[HttpAccessResponse]]
+     */
     def authenticate(
       request: HttpAccessRequest
     ): ZIO[R, HttpError, HttpAccessResponse]
 
+    /**
+     * Makes http refresh token request
+     *
+     * @param request [[HttpRefreshRequest]]
+     * @return [[HttpRefreshResponse]]
+     */
     def refreshToken(
       request: HttpRefreshRequest
     ): ZIO[R, HttpError, HttpRefreshResponse]
