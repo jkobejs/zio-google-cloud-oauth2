@@ -1,3 +1,19 @@
+/*
+ * Copyright 2019 Josip Grgurica
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator
 
 import java.time.Instant
@@ -7,6 +23,7 @@ import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.Aut
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.http
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.http.{Http4sClient, HttpAuthRequest, HttpClient}
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.sign.{Claims, JwtSign, JwtSignError, TSecJwtSign}
+import org.http4s.client.Client
 import zio._
 import zio.clock.Clock
 import zio.macros.annotation.accessible
@@ -28,12 +45,11 @@ object Authenticator {
     /**
      * Performs authorization on server. As per google cloud documentation access token will be valid for next hour.
      *
-     * @param cloudApiConfig [[CloudApiConfig]]
-     * @param cloudApiClaims [[CloudApiClaims]]
-     *
+     * @param cloudApiConfig [[AuthApiConfig]]
+     * @param cloudApiClaims [[AuthApiClaims]]
      * @return effect that, if evaluated, will return the [[AuthResponse]]
      */
-    def auth(cloudApiConfig: CloudApiConfig, cloudApiClaims: CloudApiClaims): ZIO[R, AuthenticatorError, AuthResponse]
+    def auth(cloudApiConfig: AuthApiConfig, cloudApiClaims: AuthApiClaims): ZIO[R, AuthenticatorError, AuthResponse]
   }
 
   trait Default extends Authenticator {
@@ -45,24 +61,25 @@ object Authenticator {
     override val authenticator: Service[Any] =
       new Service[Any] {
         override def auth(
-          cloudApiConfig: CloudApiConfig,
-          cloudApiClaims: CloudApiClaims
+          cloudApiConfig: AuthApiConfig,
+          cloudApiClaims: AuthApiClaims
         ): ZIO[Any, AuthenticatorError, AuthResponse] =
           (for {
             currentTimestamp <- clock.currentTime(TimeUnit.SECONDS)
             response         <- request(cloudApiConfig, cloudApiClaims, currentTimestamp)
-          } yield AuthResponse(
-            accessToken = response.access_token,
-            tokenType = response.token_type,
-            expiresAt = Instant.ofEpochSecond(currentTimestamp + response.expires_in)
-          )).refineOrDie {
+          } yield
+            AuthResponse(
+              accessToken = response.access_token,
+              tokenType = response.token_type,
+              expiresAt = Instant.ofEpochSecond(currentTimestamp + response.expires_in)
+            )).refineOrDie {
             case e: http.HttpError => AuthenticatorError.HttpError(e)
             case e: JwtSignError   => SignError(e)
           }
 
         private def request(
-          cloudApiConfig: CloudApiConfig,
-          claims: CloudApiClaims,
+          cloudApiConfig: AuthApiConfig,
+          claims: AuthApiClaims,
           currentTimestamp: Long
         ): Task[http.HttpAuthResponse] =
           for {
@@ -77,7 +94,7 @@ object Authenticator {
                          )
           } yield response
 
-        private def newClaims(claims: CloudApiClaims, currentTimestamp: Long): Claims =
+        private def newClaims(claims: AuthApiClaims, currentTimestamp: Long): Claims =
           Claims(
             issuer = claims.issuer,
             scope = claims.scope,
@@ -90,4 +107,10 @@ object Authenticator {
   }
 
   trait Live extends Default with TSecJwtSign with Http4sClient with Clock.Live
+
+  object Live {
+    def apply(client: Client[Task]): Authenticator = new Live {
+      override val client: Client[Task] = client
+    }
+  }
 }

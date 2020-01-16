@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package io.github.jkobejs.zio.google.cloud.oauth2.server2server.sign
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator
 
-import java.time.Instant
-
-final case class Claims(
-  issuer: String,
-  scope: String,
-  audience: String,
-  expiration: Instant,
-  issuedAt: Instant,
-  subject: Option[String] = None
+/**
+ * Represents config used to connect to Google OAuth 2.0 server.
+ *
+ * @param uri url used for creating auth requests
+ * @param privateKey private key used to sign JWT token
+ * @param grantType given grant
+ */
+final case class AuthApiConfig(
+  uri: String,
+  privateKey: String,
+  grantType: String
 )

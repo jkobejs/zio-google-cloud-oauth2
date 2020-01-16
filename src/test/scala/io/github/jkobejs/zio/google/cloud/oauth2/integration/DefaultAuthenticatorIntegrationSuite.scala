@@ -6,8 +6,8 @@ import java.time.Instant
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.Authenticator.Live
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.{
   Authenticator,
-  CloudApiClaims,
-  CloudApiConfig
+  AuthApiClaims,
+  AuthApiConfig
 }
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.{
   FS2ServiceAccountKeyReader,
@@ -44,12 +44,12 @@ object DefaultAuthenticatorIntegrationSuite {
 
           for {
             serviceAccountKey <- serviceAccountKeyReader.provide(new FS2ServiceAccountKeyReader with Blocking.Live {})
-            cloudApiConfig = CloudApiConfig(
+            cloudApiConfig = AuthApiConfig(
               uri = serviceAccountKey.token_uri,
               privateKey = serviceAccountKey.private_key,
               grantType = "urn:ietf:params:oauth:grant-type:jwt-bearer"
             )
-            cloudApiClaims = CloudApiClaims(
+            cloudApiClaims = AuthApiClaims(
               issuer = serviceAccountKey.client_email,
               scope = "https://www.googleapis.com/auth/devstorage.read_write",
               audience = serviceAccountKey.token_uri
