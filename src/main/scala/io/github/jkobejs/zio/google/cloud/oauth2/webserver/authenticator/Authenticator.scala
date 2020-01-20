@@ -21,54 +21,54 @@ trait Authenticator {
 
 object Authenticator {
 
-  /**
-   * Creates authorization url that should be used to redirect Google user to consent prompt
-   *
-   * @param cloudApiConfig [[CloudApiConfig]] - Google Cloud client app configuration
-   * @param authRequestParams [[AuthRequestParams]] - Authorization request parameters. Most of the time, you'd only want to set `scope`, leaving the rest of arguments default. If `redirect_uri` is not provided, it will be set to a first element from [[CloudApiConfig]].redirect_uris list
-   * @return authorization url
-   */
-  def createAuthUrl(cloudApiConfig: CloudApiConfig, authRequestParams: AuthRequestParams): String = {
-    import io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding.UrlEncodedWriter.ops._
-
-    val authReqQueryParamsEncoded = AuthRequest(
-      cloudApiConfig.client_id,
-      authRequestParams.redirect_uri.getOrElse(cloudApiConfig.redirect_uris.head),
-      authRequestParams.scope,
-      authRequestParams.access_type,
-      authRequestParams.state,
-      authRequestParams.include_granted_scopes,
-      authRequestParams.login_hint,
-      authRequestParams.prompt,
-      authRequestParams.response_type
-    ).toUrlEncoded
-
-    s"${cloudApiConfig.auth_uri}?$authReqQueryParamsEncoded"
-  }
-
   trait Service[R] {
+
+    /**
+     * Creates authorization url that should be used to redirect Google user to consent prompt
+     *
+     * @param authApiConfig    [[AuthApiConfig]] - Google Cloud client app configuration
+     * @param authRequestParams [[AuthRequestParams]] - Authorization request parameters. Most of the time, you'd only want to set `scope`, leaving the rest of arguments default. If `redirect_uri` is not provided, it will be set to a first element from [[AuthApiConfig]].redirect_uris list
+     * @return authorization url
+     */
+    final def createAuthUrl(authApiConfig: AuthApiConfig, authRequestParams: AuthRequestParams): String = {
+      import io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding.UrlEncodedWriter.ops._
+
+      val authReqQueryParamsEncoded = AuthRequest(
+        authApiConfig.clientId,
+        authRequestParams.redirectUri.getOrElse(authApiConfig.redirectUris.head),
+        authRequestParams.scope,
+        authRequestParams.accessType,
+        authRequestParams.state,
+        authRequestParams.includeGrantedScopes,
+        authRequestParams.loginHint,
+        authRequestParams.prompt,
+        authRequestParams.responseType
+      ).toUrlEncoded
+
+      s"${authApiConfig.authUri}?$authReqQueryParamsEncoded"
+    }
 
     /**
      * Performs authentication on server. As per google cloud documentation access token will be valid for next hour
      *
-     * @param cloudApiConfig [[CloudApiConfig]]
+     * @param authApiConfig [[AuthApiConfig]]
      * @param authorizationCode authorization code obtained by user consent from redirection uri
      * @return [[AccessResponse]]
      */
     def authenticate(
-      cloudApiConfig: CloudApiConfig,
+      authApiConfig: AuthApiConfig,
       authorizationCode: String
     ): ZIO[R, AuthenticationError, AccessResponse]
 
     /**
      * Performs access token refresh. As per google cloud documentation access token will be valid for next hour
      *
-     * @param cloudApiConfig
+     * @param authApiConfig
      * @param refreshToken refresh token used for obtaining new access token. As per google cloud documentation refresh token never expires.
      * @return [[RefreshResponse]]
      */
     def refreshToken(
-      cloudApiConfig: CloudApiConfig,
+      authApiConfig: AuthApiConfig,
       refreshToken: String
     ): ZIO[R, AuthenticationError, RefreshResponse]
   }
@@ -81,19 +81,19 @@ object Authenticator {
     override val authenticator: Service[Any] = new Service[Any] {
 
       override def authenticate(
-        cloudApiConfig: CloudApiConfig,
+        authApiConfig: AuthApiConfig,
         authorizationCode: String
       ): ZIO[Any, AuthenticationError, AccessResponse] =
         (for {
           response <- httpClient
                        .authenticate(
                          HttpAccessRequest(
-                           cloudApiConfig.token_uri,
+                           authApiConfig.tokenUri,
                            HttpAccessRequestBody(
                              authorizationCode,
-                             cloudApiConfig.redirect_uris.head,
-                             cloudApiConfig.client_id,
-                             cloudApiConfig.client_secret
+                             authApiConfig.redirectUris.head,
+                             authApiConfig.clientId,
+                             authApiConfig.clientSecret
                            )
                          )
                        )
@@ -108,15 +108,15 @@ object Authenticator {
         }
 
       override def refreshToken(
-        cloudApiConfig: CloudApiConfig,
+        authApiConfig: AuthApiConfig,
         refreshToken: String
       ): ZIO[Any, AuthenticationError, RefreshResponse] =
         (for {
           response <- httpClient
                        .refreshToken(
                          HttpRefreshRequest(
-                           cloudApiConfig.token_uri,
-                           HttpRefreshRequestBody(refreshToken, cloudApiConfig.client_id, cloudApiConfig.client_secret)
+                           authApiConfig.tokenUri,
+                           HttpRefreshRequestBody(refreshToken, authApiConfig.clientId, authApiConfig.clientSecret)
                          )
                        )
           currentTimestamp <- clock.currentTime(TimeUnit.SECONDS)

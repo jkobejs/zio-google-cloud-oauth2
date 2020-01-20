@@ -15,7 +15,7 @@ import io.github.jkobejs.zio.google.cloud.oauth2.common.urlencoding.UrlEncodedWr
  * @param prompt A space-delimited, case-sensitive list of prompts to present the user. If you don't specify this parameter, the user will be prompted only the first time your app requests access. Possible values are: none, consent, select_account
  * @param response_type Response type - should be set to "code" for this type of requests
  */
-final case class AuthRequest(
+final private[authenticator] case class AuthRequest(
   client_id: String,
   redirect_uri: String,
   scope: String,

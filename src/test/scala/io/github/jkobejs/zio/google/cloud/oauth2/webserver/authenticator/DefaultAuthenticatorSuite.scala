@@ -15,17 +15,17 @@ object DefaultAuthenticatorSuite {
   val authenticatorSuite = suite("Default Authenticator tests")(
     test("Authenticator correctly generates and escapes auth url") {
 
-      val authUrl = Authenticator.createAuthUrl(Fixtures.cloudApiConfig, Fixtures.authRequestParams)
+      val authUrl = Authenticator.>.createAuthUrl(Fixtures.authApiConfig, Fixtures.authRequestParams)
       assert(
         authUrl,
         equalTo(
-          s"https://accounts.google.com/o/oauth2/auth?client_id=client_id&redirect_uri=http%3A%2F%2Flocalhost%3A8080&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdevstorage.read_write&access_type=offline&prompt=consent&response_type=code"
+          s"https://accounts.google.com/o/oauth2/auth?client_id=clientId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdevstorage.read_write&access_type=offline&prompt=consent&response_type=code"
         )
       )
     },
     testM("Authenticator returns access response when authentication succeeds") {
 
-      val app = Authenticator.>.authenticate(Fixtures.cloudApiConfig, "code_123")
+      val app = Authenticator.>.authenticate(Fixtures.authApiConfig, "code_123")
 
       val clockMock = MockClock.currentTime(equalTo(TimeUnit.SECONDS)).returns(Expectation.value(Fixtures.currentTime))
 
@@ -57,7 +57,7 @@ object DefaultAuthenticatorSuite {
     },
     testM("Authenticator returns refresh token response when token refreshing succeeds") {
 
-      val app = Authenticator.>.refreshToken(Fixtures.cloudApiConfig, "refresh_token_123")
+      val app = Authenticator.>.refreshToken(Fixtures.authApiConfig, "refresh_token_123")
 
       val clockMock = MockClock.currentTime(equalTo(TimeUnit.SECONDS)).returns(Expectation.value(Fixtures.currentTime))
 
@@ -89,7 +89,7 @@ object DefaultAuthenticatorSuite {
     },
     testM("Authenticator returns http error when http service fails") {
 
-      val app = Authenticator.>.refreshToken(Fixtures.cloudApiConfig, "refresh_token_123")
+      val app = Authenticator.>.refreshToken(Fixtures.authApiConfig, "refresh_token_123")
 
       val clockMock = MockClock.currentTime(equalTo(TimeUnit.SECONDS)).returns(Expectation.value(Fixtures.currentTime))
 

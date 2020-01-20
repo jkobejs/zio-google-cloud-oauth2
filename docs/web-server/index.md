@@ -16,7 +16,7 @@ This OAuth 2.0 flow is specifically for user authorization. It is designed for a
 ### Usage
 - [Enable APIs for your project](#enable-apis-for-your-project)
 - [Create authorization credentials](#create-authorization-credentials)
-- [Read OAuth 2.0 Client key (optional)](#read-oauth-20-client-key-_optional_)
+- [Read OAuth 2.0 Client key (optional)](#read-oauth-20-client-key-optional)
 - [Authorize](#authorize)
 - [Authenticate](#authenticate)
 - [Refresh an access token (offline access)](#refresh-an-access-token-offline-access)
@@ -54,7 +54,7 @@ After creating your credentials, download the `client_secret.json` file from the
 
 ### Using the library
 
-#### Read OAuth 2.0 Client key _(optional)_
+#### Read OAuth 2.0 Client key (optional)
 This step is optional. OAuth Client key, token URI, etc. can be provided in multiple ways (env vars, config, etc..).
 This lib offers API to read client key (`client_secret.json`) JSON data from file system.
 
@@ -72,9 +72,9 @@ import cats.data.NonEmptyList
 import org.http4s.client._
 import org.http4s.client.blaze._
 
-val cloudApiConfig = CloudApiConfig(
-    "client_id",
-    "project_id",
+val authApiConfig = AuthApiConfig(
+    "clientId",
+    "projectId",
     "https://accounts.google.com/o/oauth2/auth",
     "https://oauth2.googleapis.com/token",
     "secret123",
@@ -111,62 +111,62 @@ The lib user is responsible for handling this URL callback and parsing the code/
 
 You generate this authorization URL with the following method:
 ```scala
-def createAuthUrl(cloudApiConfig: CloudApiConfig, authRequestParams: AuthRequestParams): String
+def createAuthUrl(authApiConfig: AuthApiConfig, authRequestParams: AuthRequestParams): String
 ```
 
-It receives two parameters, `CloudApiConfig` and `AuthRequestParams`:
+It receives two parameters, `AuthApiConfig` and `AuthRequestParams`:
 
 ```scala
 /**
  * Represents config used to connect to Google OAuth 2.0 server.
  *
- * @param client_id Google OAuth 2.0 Client ID
- * @param project_id Google project ID
- * @param auth_uri url used for creating authorization requests (obtaining authorization code)
- * @param token_uri url used for creating authentication requests (obtaining access and refresh tokens)
- * @param client_secret Google client password
- * @param redirect_uris List of redirect URIs, must be verified in Google Console
+ * @param clientId Google OAuth 2.0 Client ID
+ * @param projectId Google project ID
+ * @param authUri url used for creating authorization requests (obtaining authorization code)
+ * @param tokenUri url used for creating authentication requests (obtaining access and refresh tokens)
+ * @param clientSecret Google client password
+ * @param redirectUris List of redirect URIs, must be verified in Google Console
  */
-final case class CloudApiConfig(
-  client_id: String,
-  project_id: String,
-  auth_uri: String,
-  token_uri: String,
-  client_secret: String,
-  redirect_uris: NonEmptyList[String]
+final case class AuthApiConfig(
+  clientId: String,
+  projectId: String,
+  authUri: String,
+  tokenUri: String,
+  clientSecret: String,
+  redirectUris: NonEmptyList[String]
 )
 
 /**
  * Authentication request parameters. Used to construct [[AuthRequest]]
  *
  * @param scope A space-delimited list of scopes that identify the resources that your application could access on the user's behalf
- * @param redirect_uri  Determines where the API server redirects the user after the user completes the authorization flow
- * @param access_type Indicates whether your application can refresh access tokens when the user is not present at the browser (online or offline)
+ * @param redirectUri  Determines where the API server redirects the user after the user completes the authorization flow
+ * @param accessType Indicates whether your application can refresh access tokens when the user is not present at the browser (online or offline)
  * @param state Specifies any string value that your application uses to maintain state between your authorization request and the authorization server's response. The server returns the exact value that you send as a name=value pair in the hash (#) fragment of the redirect_uri after the user consents to or denies your application's access request
- * @param include_granted_scopes Enables applications to use incremental authorization to request access to additional scopes in context
- * @param login_hint The server uses the hint to simplify the login flow either by prefilling the email field in the sign-in form or by selecting the appropriate multi-login session
+ * @param includeGrantedScopes Enables applications to use incremental authorization to request access to additional scopes in context
+ * @param loginHint The server uses the hint to simplify the login flow either by prefilling the email field in the sign-in form or by selecting the appropriate multi-login session
  * @param prompt A space-delimited, case-sensitive list of prompts to present the user. If you don't specify this parameter, the user will be prompted only the first time your app requests access. Possible values are: none, consent, select_account
- * @param response_type Response type - should be set to "code" for this type of requests
+ * @param responseType Response type - should be set to "code" for this type of requests
  */
 final case class AuthRequestParams(
   scope: String,
-  redirect_uri: Option[String] = None,
-  access_type: String = "offline",
+  redirectUri: Option[String] = None,
+  accessType: String = "offline",
   state: Option[String] = None,
-  include_granted_scopes: Option[Boolean] = None,
-  login_hint: Option[String] = None,
+  includeGrantedScopes: Option[Boolean] = None,
+  loginHint: Option[String] = None,
   prompt: Option[String] = Some("consent"),
-  response_type: String = "code"
+  responseType: String = "code"
 )
 ```
 
 #### Authenticate
 Web server authentication is exposed in `Authenticator` module through service method
 ```scala
-def authenticate(cloudApiConfig: CloudApiConfig, authorizationCode: String): ZIO[R, AuthenticationError, AccessResponse]
+def authenticate(authApiConfig: AuthApiConfig, authorizationCode: String): ZIO[R, AuthenticationError, AccessResponse]
 ```
 
-It receives two parameters, `CloudApiConfig` and `authorizationCode` (obtained from the [previous](#authorize) step).
+It receives two parameters, `AuthApiConfig` and `authorizationCode` (obtained from the [previous](#authorize) step).
 
 On success, `authentication` method returns:
 ```scala
@@ -205,7 +205,7 @@ val authenticatorLiveManaged: ZManaged[Any, Throwable, Authenticator.Live] = ZIO
       )
   }
 
-val accessResponse: ZIO[Any, Throwable, AccessResponse] = Authenticator.>.authenticate(cloudApiConfig, authorizationCode).provideManaged(authenticatorLiveManaged)
+val accessResponse: ZIO[Any, Throwable, AccessResponse] = Authenticator.>.authenticate(authApiConfig, authorizationCode).provideManaged(authenticatorLiveManaged)
 ```
 
 #### Refresh an access token (offline access)
@@ -213,10 +213,10 @@ val accessResponse: ZIO[Any, Throwable, AccessResponse] = Authenticator.>.authen
 Web server access token refresh is exposed in `Authenticator` module through service method:
 
 ```scala
-def refreshToken(cloudApiConfig: CloudApiConfig, refreshToken: String): ZIO[R, AuthenticationError, RefreshResponse]
+def refreshToken(authApiConfig: AuthApiConfig, refreshToken: String): ZIO[R, AuthenticationError, RefreshResponse]
 ```
 
-It receives two parameters, `CloudApiConfig` and `refreshToken` obtained from the `AccessResponse`.
+It receives two parameters, `AuthApiConfig` and `refreshToken` obtained from the `AccessResponse`.
 
 On success, `refreshToken` method returns `RefreshResponse`:
 ```scala
@@ -244,7 +244,7 @@ import java.time.Instant
 val accessResponseVal = AccessResponse("access_token_123", "Bearer", Instant.ofEpochSecond(123L), "refresh_token_123")
 ```
 ```scala mdoc:silent
-val refreshResponse: ZIO[Any, Throwable, RefreshResponse] = Authenticator.>.refreshToken(cloudApiConfig, accessResponseVal.refreshToken).provideManaged(authenticatorLiveManaged)
+val refreshResponse: ZIO[Any, Throwable, RefreshResponse] = Authenticator.>.refreshToken(authApiConfig, accessResponseVal.refreshToken).provideManaged(authenticatorLiveManaged)
 ```
 
 ###### Caching
@@ -252,7 +252,7 @@ Even though [OAuth 2.0 for Web Server Applications][google-web-server] says that
 It is left for user to decide how to keep tokens and when to [refresh](#refresh-an-access-token-offline-access) them.
 Since authenticator returns authentication responses wrapped in ZIO effect, it is easy to cache them by using builtin API:
 ```scala mdoc:silent
-val cached: ZIO[Authenticator with clock.Clock, Nothing, IO[AuthenticationError, AccessResponse]] = Authenticator.>.authenticate(cloudApiConfig, authorizationCode).cached(duration.Duration(1, TimeUnit.HOURS))
+val cached: ZIO[Authenticator with clock.Clock, Nothing, IO[AuthenticationError, AccessResponse]] = Authenticator.>.authenticate(authApiConfig, authorizationCode).cached(duration.Duration(1, TimeUnit.HOURS))
 ```
 
 ###### Modularity

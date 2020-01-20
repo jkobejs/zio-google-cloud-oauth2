@@ -6,9 +6,9 @@ import java.time.Instant
 import io.github.jkobejs.zio.google.cloud.oauth2.utils.{Browser, RedirectionRouter}
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator.Authenticator.Live
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.authenticator.{
+  AuthApiConfig,
   AuthRequestParams,
-  Authenticator,
-  CloudApiConfig
+  Authenticator
 }
 import io.github.jkobejs.zio.google.cloud.oauth2.webserver.oauthclientkey.{
   FS2OAuthClientKeyReader,
@@ -58,24 +58,26 @@ object DefaultAuthenticatorIntegrationSuite {
 
           for {
             serviceAccountKey <- serviceAccountKeyReader.provide(new FS2OAuthClientKeyReader with Blocking.Live {})
-            cloudApiConfig = CloudApiConfig(
-              client_id = serviceAccountKey.client_id,
-              project_id = serviceAccountKey.project_id,
-              auth_uri = serviceAccountKey.auth_uri,
-              token_uri = serviceAccountKey.token_uri,
-              client_secret = serviceAccountKey.client_secret,
-              redirect_uris = serviceAccountKey.redirect_uris
+            authApiConfig = AuthApiConfig(
+              clientId = serviceAccountKey.client_id,
+              projectId = serviceAccountKey.project_id,
+              authUri = serviceAccountKey.auth_uri,
+              tokenUri = serviceAccountKey.token_uri,
+              clientSecret = serviceAccountKey.client_secret,
+              redirectUris = serviceAccountKey.redirect_uris
             )
             queue <- Queue.bounded[String](1)
             fiber <- server(queue).fork
-            authUrl = Authenticator
-              .createAuthUrl(cloudApiConfig, AuthRequestParams("https://www.googleapis.com/auth/devstorage.read_write"))
+            authUrl = Authenticator.>.createAuthUrl(
+              authApiConfig,
+              AuthRequestParams("https://www.googleapis.com/auth/devstorage.read_write")
+            )
             _           <- Browser.open(authUrl)
             codeOrError <- queue.take
             code <- if (codeOrError == "access_denied") Task.fail(new Throwable("Error: access_denied"))
                    else ZIO.succeed(codeOrError)
-            accessResponse <- Authenticator.>.authenticate(cloudApiConfig, code).provideManaged(managedResource)
-            refreshResponse <- Authenticator.>.refreshToken(cloudApiConfig, accessResponse.refreshToken)
+            accessResponse <- Authenticator.>.authenticate(authApiConfig, code).provideManaged(managedResource)
+            refreshResponse <- Authenticator.>.refreshToken(authApiConfig, accessResponse.refreshToken)
                                 .provideManaged(managedResource)
             _ <- fiber.interrupt
           } yield {
