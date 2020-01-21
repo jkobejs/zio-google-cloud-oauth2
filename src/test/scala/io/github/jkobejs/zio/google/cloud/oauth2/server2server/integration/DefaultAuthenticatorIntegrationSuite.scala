@@ -5,15 +5,14 @@ import java.time.Instant
 
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.Authenticator.Live
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator.{
-  Authenticator,
-  CloudApiClaims,
-  CloudApiConfig
+  AuthApiClaims,
+  AuthApiConfig,
+  Authenticator
 }
 import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey.{
   FS2ServiceAccountKeyReader,
   ServiceAccountKeyReader
 }
-import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import zio.blocking.Blocking
 import zio.interop.catz._
@@ -36,20 +35,16 @@ object DefaultAuthenticatorIntegrationSuite {
               val exec = rts.platform.executor.asEC
               BlazeClientBuilder[Task](exec).resource.toManaged
             }
-            .map { client4s =>
-              new Live {
-                val client: Client[zio.Task] = client4s
-              }
-            }
+            .map(Live.apply)
 
           for {
             serviceAccountKey <- serviceAccountKeyReader.provide(new FS2ServiceAccountKeyReader with Blocking.Live {})
-            cloudApiConfig = CloudApiConfig(
+            cloudApiConfig = AuthApiConfig(
               uri = serviceAccountKey.token_uri,
               privateKey = serviceAccountKey.private_key,
               grantType = "urn:ietf:params:oauth:grant-type:jwt-bearer"
             )
-            cloudApiClaims = CloudApiClaims(
+            cloudApiClaims = AuthApiClaims(
               issuer = serviceAccountKey.client_email,
               scope = "https://www.googleapis.com/auth/devstorage.read_write",
               audience = serviceAccountKey.token_uri

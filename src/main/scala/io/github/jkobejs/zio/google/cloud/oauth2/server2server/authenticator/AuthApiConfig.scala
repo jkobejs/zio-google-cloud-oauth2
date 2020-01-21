@@ -14,10 +14,17 @@
  * limitations under the License.
  */
 
-package io.github.jkobejs.zio.google.cloud.oauth2.webserver.http
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.authenticator
 
-final case class HttpRefreshResponse(
-  access_token: String,
-  token_type: String,
-  expires_in: Long
+/**
+ * Represents config used to connect to Google OAuth 2.0 server.
+ *
+ * @param uri url used for creating auth requests
+ * @param privateKey private key used to sign JWT token
+ * @param grantType given grant
+ */
+final case class AuthApiConfig(
+  uri: String,
+  privateKey: String,
+  grantType: String
 )
