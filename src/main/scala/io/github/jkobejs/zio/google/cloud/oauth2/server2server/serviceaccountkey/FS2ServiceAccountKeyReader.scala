@@ -57,11 +57,11 @@ trait FS2ServiceAccountKeyReader extends ServiceAccountKeyReader with Blocking {
                       RIO
                         .fromEither(decode[ServiceAccountKey](string))
                         .mapError(_ => InvalidJsonFormat(path))
-                )
+                  )
             )
             .refineOrDie {
               case error: ServiceAccountKeyError => error
-          }
+            }
       )
   }
 }
