@@ -1,4 +1,4 @@
-package io.github.jkobejs.zio.google.cloud.oauth2.integration
+package io.github.jkobejs.zio.google.cloud.oauth2.server2server.integration
 
 import java.nio.file.{Files, Paths}
 import java.time.Instant

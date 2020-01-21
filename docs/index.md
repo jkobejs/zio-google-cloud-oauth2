@@ -50,13 +50,14 @@ Server to server
 
 Web server applications
 -----------------------
-Not Implemented!
+[Documentation][web-server] of web server application authorization and authentication.
 
 
 [google-oauth]: https://developers.google.com/identity/protocols/OAuth2
 [tsec]: https://jmcardon.github.io/tsec/
 [http4s]: https://http4s.org/
 [server-2-server]: server-2-server
+[web-server]: web-server
 [circe]: https://circe.github.io/circe/
 [zio]: https://zio.dev
 [zio-macros]: https://github.com/zio/zio-macros
