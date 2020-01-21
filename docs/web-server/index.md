@@ -14,13 +14,21 @@ This OAuth 2.0 flow is specifically for user authorization. It is designed for a
 
 
 ### Usage
-- [Enable APIs for your project](#enable-apis-for-your-project)
-- [Create authorization credentials](#create-authorization-credentials)
-- [Read OAuth 2.0 Client key (optional)](#read-oauth-20-client-key-optional)
-- [Authorize](#authorize)
-- [Authenticate](#authenticate)
-- [Refresh an access token (offline access)](#refresh-an-access-token-offline-access)
-- [Integration tests](#integration-tests)
+- [OAuth 2.0 Server-side Web Apps](#oauth-20-server-side-web-apps)
+  - [Usage](#usage)
+    - [Create service account](#create-service-account)
+  - [Prerequisites](#prerequisites)
+    - [Enable APIs for your project](#enable-apis-for-your-project)
+    - [Create authorization credentials](#create-authorization-credentials)
+  - [Using the library](#using-the-library)
+    - [Read OAuth 2.0 Client key (optional)](#read-oauth-20-client-key-optional)
+    - [Authorize](#authorize)
+    - [Authenticate](#authenticate)
+    - [Refresh an access token (offline access)](#refresh-an-access-token-offline-access)
+        - [Caching](#caching)
+        - [Modularity](#modularity)
+        - [Default](#default)
+    - [Integration tests](#integration-tests)
 
 #### Create service account
 To support server-to-server interactions, first create a [service account][service-account] for your project in the Google API Console.
@@ -190,19 +198,14 @@ final case class AccessResponse(
 Module contains live implementation in `Authenticator.Live` that depends only on `org.http4s.client.Client` which is needed to make http requests.
 
 ```scala mdoc:silent
-val authenticatorLiveManaged: ZManaged[Any, Throwable, Authenticator.Live] = ZIO
+val authenticatorLiveManaged: ZManaged[Any, Throwable, Authenticator] = ZIO
   .runtime[Any]
   .toManaged_
   .flatMap { implicit rts =>
     BlazeClientBuilder[Task](rts.platform.executor.asEC)
       .resource
       .toManaged
-      .map(
-        client4s =>
-          new Authenticator.Live {
-            val client: Client[Task] = client4s
-          }
-      )
+      .map(Authenticator.Live.apply)
   }
 
 val accessResponse: ZIO[Any, Throwable, AccessResponse] = Authenticator.>.authenticate(authApiConfig, authorizationCode).provideManaged(authenticatorLiveManaged)

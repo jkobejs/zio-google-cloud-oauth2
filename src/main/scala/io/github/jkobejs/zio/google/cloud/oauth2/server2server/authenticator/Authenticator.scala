@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Josip Grgurica
+ * Copyright 2019 Josip Grgurica and Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -109,8 +109,8 @@ object Authenticator {
   trait Live extends Default with TSecJwtSign with Http4sClient with Clock.Live
 
   object Live {
-    def apply(client: Client[Task]): Authenticator = new Live {
-      override val client: Client[Task] = client
+    def apply(clientT: Client[Task]): Authenticator = new Live {
+      override val client: Client[Task] = clientT
     }
   }
 }

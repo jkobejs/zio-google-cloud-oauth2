@@ -14,7 +14,6 @@ import io.github.jkobejs.zio.google.cloud.oauth2.webserver.oauthclientkey.{
   FS2OAuthClientKeyReader,
   OAuthClientKeyReader
 }
-import org.http4s.client.Client
 import org.http4s.client.blaze.BlazeClientBuilder
 import org.http4s.server.blaze.BlazeServerBuilder
 import zio.blocking.Blocking
@@ -41,11 +40,7 @@ object DefaultAuthenticatorIntegrationSuite {
               val exec = rts.platform.executor.asEC
               BlazeClientBuilder[Task](exec).resource.toManaged
             }
-            .map { client4s =>
-              new Live {
-                val client: Client[zio.Task] = client4s
-              }
-            }
+            .map(Live.apply)
 
           def server(queue: Queue[String]) = ZIO.runtime[Any].flatMap { implicit rts =>
             import zio.interop.catz.implicits._

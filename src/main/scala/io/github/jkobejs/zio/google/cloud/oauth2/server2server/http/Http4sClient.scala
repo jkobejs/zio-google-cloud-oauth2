@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Josip Grgurica
+ * Copyright 2019 Josip Grgurica and Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ trait Http4sClient extends HttpClient {
 }
 
 object Http4sClient {
-  def apply(client: Client[Task]): HttpClient = new Http4sClient {
-    override val client: Client[Task] = client
+  def apply(clientT: Client[Task]): HttpClient = new Http4sClient {
+    override val client: Client[Task] = clientT
   }
 }

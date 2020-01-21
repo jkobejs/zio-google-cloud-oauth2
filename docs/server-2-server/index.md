@@ -14,10 +14,15 @@ instead of to an individual end user. Your application calls Google APIs on beha
 so users aren't directly involved.
 
 ### Usage
-- [Create service account](#create-service-account)
-- [Read service account key (optional)](#read-service-account-key-optional)
-- [Authenticate](#authenticate)
-- [Integration tests](#integration-tests)
+- [Server to server](#server-to-server)
+  - [Usage](#usage)
+    - [Create service account](#create-service-account)
+    - [Read service account key (optional)](#read-service-account-key-optional)
+    - [Authenticate](#authenticate)
+        - [Caching](#caching)
+        - [Modularity](#modularity)
+        - [Default](#default)
+    - [Integration tests](#integration-tests)
 
 #### Create service account
 To support server-to-server interactions, first create a [service account][service-account] for your project in the Google API Console.
@@ -45,12 +50,12 @@ import io.github.jkobejs.zio.google.cloud.oauth2.server2server.serviceaccountkey
 import org.http4s.client._
 import org.http4s.client.blaze._
 
-val apiConfig: CloudApiConfig = CloudApiConfig(
+val apiConfig: AuthApiConfig = AuthApiConfig(
   uri        = "serviceAccountKey.token_uri",
   privateKey = "serviceAccountKey.private_key",
   grantType  = "urn:ietf:params:oauth:grant-type:jwt-bearer"
 )
-val apiClaims: CloudApiClaims = CloudApiClaims(
+val apiClaims: AuthApiClaims = AuthApiClaims(
   issuer   = "serviceAccountKey.client_email",
   scope    = "https://www.googleapis.com/auth/devstorage.read_write",
   audience = "serviceAccountKey.token_uri"
@@ -78,7 +83,7 @@ It receives two parameters, `CloudApiConfig` and `CloudApiClaims`:
  * @param privateKey private key used to sign JWT token
  * @param grantType given grant
  */
-final case class CloudApiConfig(
+final case class AuthApiConfig(
   uri: String,
   privateKey: String,
   grantType: String
@@ -96,7 +101,7 @@ final case class CloudApiConfig(
  * @param subject Subject, Case-sensitive string when defined
  * @param expiresIn Controls when auth token will expire (Google API default is 1 hour)
  */
-final case class CloudApiClaims(
+final case class AuthApiClaims(
   issuer: String,
   scope: String,
   audience: String,
@@ -127,19 +132,14 @@ Module contains live implementation in `Authenticator.Live` that depends only on
 needed to make http requests.
 
 ```scala mdoc:silent
-val authenticatorLiveManaged: ZManaged[Any, Throwable, Authenticator.Live] = ZIO
+val authenticatorLiveManaged: ZManaged[Any, Throwable, Authenticator] = ZIO
   .runtime[Any]
   .toManaged_
   .flatMap { implicit rts =>
     BlazeClientBuilder[Task](rts.platform.executor.asEC)
       .resource
       .toManaged
-      .map(
-        client4s =>
-          new Authenticator.Live {
-            val client: Client[Task] = client4s
-          }
-      )
+      .map(Authenticator.Live.apply)
   } 
 
 val authResponse: ZIO[Any, Throwable, AuthResponse] = Authenticator.>.auth(apiConfig, apiClaims).provideManaged(authenticatorLiveManaged)

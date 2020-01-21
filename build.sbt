@@ -7,7 +7,7 @@ inThisBuild(
   List(
     organization := "io.github.jkobejs",
     homepage := Some(url("https://github.com/jkobejs/zio-google-cloud-oauth2")),
-    organizationName := "Josip Grgurica",
+    organizationName := "Josip Grgurica and Contributors",
     startYear := Some(2019),
     licenses := List("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0")),
     developers := List(
