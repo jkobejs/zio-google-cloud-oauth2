@@ -235,7 +235,7 @@ To run integration tests together with unit tests you need to export path to ser
 ```bash
 export SERVICE_ACCOUNT_KEY_PATH=/.../service-account-key.json
 
-sbt test:run
+sbt test
 ```
 
 

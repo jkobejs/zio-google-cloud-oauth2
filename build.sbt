@@ -31,6 +31,7 @@ scalacOptions ++= Seq(
   "-Yrangepos",
   "-feature",
   "-language:higherKinds",
+  "-language:implicitConversions",
   "-language:existentials",
   "-unchecked",
   "-Xlint:_,-type-parameter-shadow",
@@ -65,6 +66,8 @@ lazy val libraryVersion = new {
   val zioInteropCats   = "2.0.0.0-RC10"
   val zioMacros        = "0.6.0"
   val betterMonadicFor = "0.3.1"
+  val simulacrum       = "1.0.0"
+  val magnolia         = "0.12.0"
 }
 
 lazy val library =
@@ -73,6 +76,8 @@ lazy val library =
     val tsecJWTSig        = "io.github.jmcardon" %% "tsec-jwt-sig"        % libraryVersion.tsec
     val http4sBlazeClient = "org.http4s"         %% "http4s-blaze-client" % libraryVersion.http4s
     val http4sCirce       = "org.http4s"         %% "http4s-circe"        % libraryVersion.http4s
+    val http4sDsl         = "org.http4s"         %% "http4s-dsl"          % libraryVersion.http4s
+    val http4sBlazeServer = "org.http4s"         %% "http4s-blaze-server" % libraryVersion.http4s
     val circeCore         = "io.circe"           %% "circe-core"          % libraryVersion.circe
     val circeGeneric      = "io.circe"           %% "circe-generic"       % libraryVersion.circe
     val zio               = "dev.zio"            %% "zio"                 % libraryVersion.zio
@@ -82,6 +87,8 @@ lazy val library =
     val zioMacros         = "dev.zio"            %% "zio-macros-core"     % libraryVersion.zioMacros
     val zioMacrosTest     = "dev.zio"            %% "zio-macros-test"     % libraryVersion.zioMacros
     val betterMonadicFor  = "com.olegpy"         %% "better-monadic-for"  % libraryVersion.betterMonadicFor
+    val simulacrum        = "org.typelevel"      %% "simulacrum"          % libraryVersion.simulacrum
+    val magnolia          = "com.propensive"     %% "magnolia"            % libraryVersion.magnolia
   }
 
 libraryDependencies ++= Seq(
@@ -89,12 +96,16 @@ libraryDependencies ++= Seq(
   library.tsecJWTSig,
   library.http4sBlazeClient,
   library.http4sCirce,
+  library.http4sDsl,
+  library.http4sBlazeServer,
   library.zio,
   library.zioInteropCats,
   library.zioMacros,
   library.zioMacrosTest,
   library.zioTest    % Test,
   library.zioTestSbt % Test,
+  library.simulacrum,
+  library.magnolia,
   compilerPlugin(library.betterMonadicFor)
 ) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
   case Some((2, x)) if x <= 12 =>
@@ -103,6 +114,8 @@ libraryDependencies ++= Seq(
     )
   case _ => Nil
 })
+
+testFrameworks ++= Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
 
 // Skip scaladocs
 sources in (Compile, doc) := Seq()
@@ -138,7 +151,8 @@ enablePlugins(BuildInfoPlugin)
 buildInfoKeys := Seq[BuildInfoKey](
   name,
   version,
-  "serviceAccountKeyPath" -> sys.env.getOrElse("SERVICE_ACCOUNT_KEY_PATH", "")
+  "serviceAccountKeyPath" -> sys.env.getOrElse("SERVICE_ACCOUNT_KEY_PATH", ""),
+  "oauthClientKeyPath"    -> sys.env.getOrElse("OAUTH_CLIENT_KEY_PATH", "")
 )
 buildInfoPackage := "io.github.jkobejs.zio.google.cloud.oauth2"
 
