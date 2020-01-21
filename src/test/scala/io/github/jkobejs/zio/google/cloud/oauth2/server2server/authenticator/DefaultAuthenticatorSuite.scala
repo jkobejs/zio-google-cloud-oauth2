@@ -127,13 +127,13 @@ object DefaultAuthenticatorSuite {
   )
 
   private def generateData(currentTime: Long, expiresIn: Long) = {
-    val cloudApiClaims = CloudApiClaims(
+    val cloudApiClaims = AuthApiClaims(
       issuer = "clientEmail",
       scope = "scope",
       audience = "url",
       expiresIn = Duration(expiresIn, TimeUnit.SECONDS)
     )
-    val cloudApiConfig = CloudApiConfig(
+    val cloudApiConfig = AuthApiConfig(
       uri = "http://localhost:8000/oauth2/v4/token",
       privateKey = "privateKey",
       grantType = "grant"
