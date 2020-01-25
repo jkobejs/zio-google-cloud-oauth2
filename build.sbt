@@ -3,6 +3,8 @@ import microsites._
 val mainScala = "2.12.10"
 val allScala  = Seq("2.13.1", mainScala)
 
+name := "zio-google-cloud-oauth2"
+
 inThisBuild(
   List(
     organization := "io.github.jkobejs",
@@ -23,42 +25,151 @@ inThisBuild(
   )
 )
 
-name := "zio-google-cloud-oauth2"
+lazy val core = (project in file("core"))
+  .settings(commonSettingsForModule("zio-google-cloud-oauth2-core"))
+  .settings(scalacOptions ++= scalacOptionsForVersion(scalaVersion.value))
+  .settings(libraryDependencies ++= libraryDependenciesForVersion(scalaVersion.value))
+  .settings(
+    buildInfoKeys := Seq[BuildInfoKey](
+      name,
+      version,
+      "serviceAccountKeyPath" -> sys.env.getOrElse("SERVICE_ACCOUNT_KEY_PATH", ""),
+      "oauthClientKeyPath"    -> sys.env.getOrElse("OAUTH_CLIENT_KEY_PATH", "")
+    ),
+    buildInfoPackage := "io.github.jkobejs.zio.google.cloud.oauth2"
+  )
+  .enablePlugins(BuildInfoPlugin)
 
-scalacOptions ++= Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-explaintypes",
-  "-Yrangepos",
-  "-feature",
-  "-language:higherKinds",
-  "-language:implicitConversions",
-  "-language:existentials",
-  "-unchecked",
-  "-Xlint:_,-type-parameter-shadow",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-unused:patvars,-implicits",
-  "-Ywarn-value-discard"
-) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
-  case Some((2, 12)) =>
-    Seq(
-      "-Xsource:2.13",
-      "-Yno-adapted-args",
-      "-Ypartial-unification",
-      "-Ywarn-extra-implicit",
-      "-Ywarn-inaccessible",
-      "-Ywarn-infer-any",
-      "-Ywarn-nullary-override",
-      "-Ywarn-nullary-unit",
-      "-opt-inline-from:<source>",
-      "-opt-warnings",
-      "-opt:l:inline"
+lazy val http4s = (project in file("http4s"))
+  .settings(commonSettingsForModule("zio-google-cloud-oauth2-http4s"))
+  .settings(scalacOptions ++= scalacOptionsForVersion(scalaVersion.value))
+  .settings(
+    libraryDependencies ++= Seq(
+      library.http4sCirce,
+      library.http4sBlazeClient,
+      library.http4sDsl         % Test,
+      library.http4sBlazeServer % Test
     )
-  case Some((2, 13)) =>
-    Seq("-Ymacro-annotations")
-  case _ => Nil
-})
+  )
+  .dependsOn(core % "test->test;compile->compile")
+
+lazy val sttp = (project in file("sttp"))
+  .settings(moduleName := "zio-google-cloud-oauth2-sttp")
+  .settings(noPublishSettings)
+  .dependsOn(core)
+
+lazy val docs = (project in file("docs"))
+  .settings(moduleName := "zio-google-cloud-oauth-docs")
+  .settings(noPublishSettings)
+  .settings(docsSettings)
+  .enablePlugins(MicrositesPlugin)
+  .dependsOn(core, http4s, sttp)
+
+lazy val docsSettings = Seq(
+  micrositeName := "zio-google-cloud-oauth2",
+  micrositeDescription := "zio-google-cloud-oauth2",
+  micrositeTwitterCreator := "@jkobejs",
+  micrositeConfigYaml := ConfigYml(
+    yamlCustomProperties = Map(
+      "tsecVersion"             -> libraryVersion.tsec,
+      "http4sVersion"           -> libraryVersion.http4s,
+      "circeVersion"            -> libraryVersion.circe,
+      "zioVersion"              -> libraryVersion.zio,
+      "zioMacrosVersion"        -> libraryVersion.zioMacros,
+      "betterMonadicForVersion" -> libraryVersion.betterMonadicFor,
+      "zioGoogleCloudOauth2Version" -> dynverGitDescribeOutput.value
+        .map(_.ref.value.tail)
+        .getOrElse(throw new Exception("There's no output from dynver!"))
+    )
+  ),
+  micrositeAuthor := "Josip Grgurica",
+  micrositeCompilingDocsTool := WithMdoc,
+  micrositeGithubOwner := "jkobejs",
+  micrositeGithubRepo := "zio-google-cloud-oauth2",
+  micrositeBaseUrl := "zio-google-cloud-oauth2",
+  micrositePushSiteWith := GitHub4s,
+  micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
+  micrositeDocumentationUrl := "server-2-server",
+  micrositeTwitterCreator := "@jkobejs",
+  includeFilter in Jekyll := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.md"
+)
+
+lazy val noPublishSettings = Seq(
+  publish := {},
+  publishLocal := {},
+  publishArtifact := false,
+  skip in publish := true
+)
+
+def commonSettingsForModule(name: String) = Seq(
+  moduleName := name,
+  testFrameworks ++= Seq(new TestFramework("zio.test.sbt.ZTestFramework")),
+  libraryDependencies ++= Seq(
+    library.tsecCommon,
+    library.tsecJWTSig,
+    library.zio,
+    library.zioInteropCats,
+    library.zioMacros,
+    library.zioMacrosTest,
+    library.simulacrum,
+    library.magnolia,
+    library.fs2IO,
+    compilerPlugin(library.betterMonadicFor),
+    library.zioTest    % Test,
+    library.zioTestSbt % Test
+  ),
+  // Skip scaladocs
+  sources in (Compile, doc) := Seq()
+)
+
+def libraryDependenciesForVersion(scalaVersion: String) =
+  (CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, x)) if x <= 12 =>
+      Seq(
+        compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full))
+      )
+    case _ => Nil
+  })
+
+def scalacOptionsForVersion(scalaVersion: String): Seq[String] = {
+  val defaultOpts = Seq(
+    "-deprecation",
+    "-encoding",
+    "UTF-8",
+    "-explaintypes",
+    "-Yrangepos",
+    "-feature",
+    "-language:higherKinds",
+    "-language:implicitConversions",
+    "-language:existentials",
+    "-unchecked",
+    "-Xlint:_,-type-parameter-shadow",
+    "-Ywarn-numeric-widen",
+    "-Ywarn-unused:patvars,-implicits",
+    "-Ywarn-value-discard"
+  )
+
+  val versionOpts: Seq[String] = CrossVersion.partialVersion(scalaVersion) match {
+    case Some((2, 12)) =>
+      Seq(
+        "-Xsource:2.13",
+        "-Yno-adapted-args",
+        "-Ypartial-unification",
+        "-Ywarn-extra-implicit",
+        "-Ywarn-inaccessible",
+        "-Ywarn-infer-any",
+        "-Ywarn-nullary-override",
+        "-Ywarn-nullary-unit",
+        "-opt-inline-from:<source>",
+        "-opt-warnings",
+        "-opt:l:inline"
+      )
+    case Some((2, 13)) =>
+      Seq("-Ymacro-annotations")
+    case _ => Nil
+  }
+  defaultOpts ++ versionOpts
+}
 
 lazy val libraryVersion = new {
   val tsec             = "0.2.0-M1"
@@ -70,6 +181,8 @@ lazy val libraryVersion = new {
   val betterMonadicFor = "0.3.1"
   val simulacrum       = "1.0.0"
   val magnolia         = "0.12.0"
+  val cats             = "2.0.0-RC1"
+  val fs2              = "2.0.1"
 }
 
 lazy val library =
@@ -91,72 +204,9 @@ lazy val library =
     val betterMonadicFor  = "com.olegpy"         %% "better-monadic-for"  % libraryVersion.betterMonadicFor
     val simulacrum        = "org.typelevel"      %% "simulacrum"          % libraryVersion.simulacrum
     val magnolia          = "com.propensive"     %% "magnolia"            % libraryVersion.magnolia
+    val fs2IO             = "co.fs2"             %% "fs2-io"              % libraryVersion.fs2
+
   }
-
-libraryDependencies ++= Seq(
-  library.tsecCommon,
-  library.tsecJWTSig,
-  library.http4sBlazeClient,
-  library.http4sCirce,
-  library.http4sDsl,
-  library.http4sBlazeServer,
-  library.zio,
-  library.zioInteropCats,
-  library.zioMacros,
-  library.zioMacrosTest,
-  library.zioTest    % Test,
-  library.zioTestSbt % Test,
-  library.simulacrum,
-  library.magnolia,
-  compilerPlugin(library.betterMonadicFor)
-) ++ (CrossVersion.partialVersion(scalaVersion.value) match {
-  case Some((2, x)) if x <= 12 =>
-    Seq(
-      compilerPlugin(("org.scalamacros" % "paradise" % "2.1.1").cross(CrossVersion.full))
-    )
-  case _ => Nil
-})
-
-testFrameworks ++= Seq(new TestFramework("zio.test.sbt.ZTestFramework"))
-
-// Skip scaladocs
-sources in (Compile, doc) := Seq()
-
-enablePlugins(MicrositesPlugin)
-
-micrositeTwitterCreator := "@jkobejs"
-micrositeConfigYaml := ConfigYml(
-  yamlCustomProperties = Map(
-    "tsecVersion"             -> libraryVersion.tsec,
-    "http4sVersion"           -> libraryVersion.http4s,
-    "circeVersion"            -> libraryVersion.circe,
-    "zioVersion"              -> libraryVersion.zio,
-    "zioMacrosVersion"        -> libraryVersion.zioMacros,
-    "betterMonadicForVersion" -> libraryVersion.betterMonadicFor,
-    "zioGoogleCloudOauth2Version" -> dynverGitDescribeOutput.value
-      .map(_.ref.value.tail)
-      .getOrElse(throw new Exception("There's no output from dynver!"))
-  )
-)
-micrositeAuthor := "Josip Grgurica"
-micrositeCompilingDocsTool := WithMdoc
-micrositeGithubOwner := "jkobejs"
-micrositeGithubRepo := "zio-google-cloud-oauth2"
-micrositeBaseUrl := "zio-google-cloud-oauth2"
-micrositePushSiteWith := GitHub4s
-micrositeGithubToken := sys.env.get("GITHUB_TOKEN")
-micrositeDocumentationUrl := "server-2-server"
-micrositeTwitterCreator := "@jkobejs"
-includeFilter in Jekyll := "*.html" | "*.css" | "*.png" | "*.jpg" | "*.gif" | "*.js" | "*.swf" | "*.md"
-
-enablePlugins(BuildInfoPlugin)
-buildInfoKeys := Seq[BuildInfoKey](
-  name,
-  version,
-  "serviceAccountKeyPath" -> sys.env.getOrElse("SERVICE_ACCOUNT_KEY_PATH", ""),
-  "oauthClientKeyPath"    -> sys.env.getOrElse("OAUTH_CLIENT_KEY_PATH", "")
-)
-buildInfoPackage := "io.github.jkobejs.zio.google.cloud.oauth2"
 
 addCommandAlias("fmt", "all scalafmtSbt scalafmt test:scalafmt")
 addCommandAlias("check", "all scalafmtSbtCheck scalafmtCheck test:scalafmtCheck")

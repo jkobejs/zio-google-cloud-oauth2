@@ -1,0 +1,8 @@
+options:
+  - title: Server to server
+    url: server-2-server/index.html
+    menu_section: intro
+
+  - title: Web server
+    url: web-server/index.html
+    menu_section: intro
