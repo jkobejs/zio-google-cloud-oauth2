@@ -25,6 +25,9 @@ inThisBuild(
   )
 )
 
+lazy val root = (project in file("."))
+  .aggregate(core, http4s, sttp, docs)
+
 lazy val core = (project in file("core"))
   .settings(commonSettingsForModule("zio-google-cloud-oauth2-core"))
   .settings(scalacOptions ++= scalacOptionsForVersion(scalaVersion.value))
