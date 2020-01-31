@@ -23,3 +23,4 @@ project/plugins/project/
 project/metals.sbt
 
 _site/
+.DS_Store
