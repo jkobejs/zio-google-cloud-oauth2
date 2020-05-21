@@ -183,7 +183,7 @@ lazy val libraryVersion = new {
   val zioMacros        = "0.6.0"
   val betterMonadicFor = "0.3.1"
   val simulacrum       = "1.0.0"
-  val magnolia         = "0.12.0"
+  val magnolia         = "0.12.8"
   val cats             = "2.0.0-RC1"
   val fs2              = "2.0.1"
 }
