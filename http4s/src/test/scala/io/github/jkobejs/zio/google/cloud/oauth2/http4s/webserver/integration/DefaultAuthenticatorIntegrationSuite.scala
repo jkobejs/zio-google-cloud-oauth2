@@ -76,10 +76,10 @@ object DefaultAuthenticatorIntegrationSuite {
                                 .provideManaged(managedResource)
             _ <- fiber.interrupt
           } yield {
-            assert(accessResponse.tokenType, equalTo("Bearer"))
-            assert(accessResponse.expiresAt.getEpochSecond / 3600, equalTo(Instant.now().getEpochSecond / 3600 + 1))
-            assert(refreshResponse.tokenType, equalTo("Bearer"))
-            assert(accessResponse.expiresAt.getEpochSecond / 3600, equalTo(Instant.now().getEpochSecond / 3600 + 1))
+            assert(accessResponse.tokenType)(equalTo("Bearer"))
+            assert(accessResponse.expiresAt.getEpochSecond / 3600)(equalTo(Instant.now().getEpochSecond / 3600 + 1))
+            assert(refreshResponse.tokenType)(equalTo("Bearer"))
+            assert(accessResponse.expiresAt.getEpochSecond / 3600)(equalTo(Instant.now().getEpochSecond / 3600 + 1))
           }
         }
       )
