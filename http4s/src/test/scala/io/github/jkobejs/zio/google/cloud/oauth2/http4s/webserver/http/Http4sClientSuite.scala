@@ -21,7 +21,7 @@ object Http4sClientSuite {
 
       val req = Fixtures.httpAccessRequest.copy(uri = "https:/ /uri")
 
-      assertM(http4sClient.httpClient.authenticate(req).either, equalTo(Left(HttpError.UriParseError("Invalid URI"))))
+      assertM(http4sClient.httpClient.authenticate(req).either)(equalTo(Left(HttpError.UriParseError("Invalid URI"))))
     },
     testM("http4 client fails when response is not success") {
       val client4s = Client[Task](_ => Resource.liftF[Task, Response[Task]](Task.succeed(Response.notFound[Task])))
@@ -30,10 +30,7 @@ object Http4sClientSuite {
         override val client = client4s
       }
 
-      assertM(
-        http4sClient.httpClient.authenticate(Fixtures.httpAccessRequest).either,
-        equalTo(Left(HttpError.HttpRequestError(status = "404 Not Found", body = "Not found")))
-      )
+      assertM(http4sClient.httpClient.authenticate(Fixtures.httpAccessRequest).either)(equalTo(Left(HttpError.HttpRequestError(status = "404 Not Found", body = "Not found"))))
     },
     testM("http4 client fails when response body is invalid") {
       val client4s = Client[Task](
@@ -47,10 +44,7 @@ object Http4sClientSuite {
         override val client = client4s
       }
 
-      assertM(
-        http4sClient.httpClient.authenticate(Fixtures.httpAccessRequest).either,
-        equalTo(Left(HttpError.ResponseParseError("Malformed message body: Invalid JSON")))
-      )
+      assertM(http4sClient.httpClient.authenticate(Fixtures.httpAccessRequest).either)(equalTo(Left(HttpError.ResponseParseError("Malformed message body: Invalid JSON"))))
     },
     testM("http4 client authentication succeeds for valid data") {
 
@@ -80,7 +74,7 @@ object Http4sClientSuite {
         override val client = client4s
       }
 
-      assertM(http4sClient.httpClient.authenticate(Fixtures.httpAccessRequest), equalTo(Fixtures.httpAccessResponse))
+      assertM(http4sClient.httpClient.authenticate(Fixtures.httpAccessRequest))(equalTo(Fixtures.httpAccessResponse))
     },
     testM("http4 client refresh token succeeds for valid data") {
 
@@ -109,7 +103,7 @@ object Http4sClientSuite {
         override val client = client4s
       }
 
-      assertM(http4sClient.httpClient.refreshToken(Fixtures.httpRefreshRequest), equalTo(Fixtures.httpRefreshResponse))
+      assertM(http4sClient.httpClient.refreshToken(Fixtures.httpRefreshRequest))(equalTo(Fixtures.httpRefreshResponse))
     }
   )
 }

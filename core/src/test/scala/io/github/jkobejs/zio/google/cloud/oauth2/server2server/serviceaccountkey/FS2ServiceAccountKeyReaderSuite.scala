@@ -14,9 +14,7 @@ object FS2ServiceAccountKeyReaderSuite {
 
       for {
         serviceAccountKey <- app.provide(new FS2ServiceAccountKeyReader with Blocking.Live {})
-      } yield assert(
-        serviceAccountKey,
-        equalTo(
+      } yield assert(serviceAccountKey)(equalTo(
           ServiceAccountKey(
             `type` = "service_account",
             project_id = "projectId",
@@ -30,8 +28,7 @@ object FS2ServiceAccountKeyReaderSuite {
             client_x509_cert_url =
               "https://www.googleapis.com/robot/v1/metadata/x509/[client_email].iam.gserviceaccount.com"
           )
-        )
-      )
+        ))
     },
     testM("fs2 service account key reader fails when file doesn't exist") {
       val nonExistingPath = "core/src/test/resources/non-existing-service-account.json"
@@ -40,7 +37,7 @@ object FS2ServiceAccountKeyReaderSuite {
       for {
         serviceAccountKeyEither <- app.provide(new FS2ServiceAccountKeyReader with Blocking.Live {}).either
       } yield {
-        assert(serviceAccountKeyEither, equalTo(Left(FileDoesNotExist(nonExistingPath))))
+        assert(serviceAccountKeyEither)(equalTo(Left(FileDoesNotExist(nonExistingPath))))
       }
     },
     testM("fs2 service account key reader fails when path is invalid") {
@@ -50,7 +47,7 @@ object FS2ServiceAccountKeyReaderSuite {
       for {
         serviceAccountKeyEither <- app.provide(new FS2ServiceAccountKeyReader with Blocking.Live {}).either
       } yield {
-        assert(serviceAccountKeyEither, equalTo(Left(InvalidPathError(invalidPath))))
+        assert(serviceAccountKeyEither)(equalTo(Left(InvalidPathError(invalidPath))))
       }
     },
     testM("fs2 service account key reader fails for invalid json") {
@@ -60,7 +57,7 @@ object FS2ServiceAccountKeyReaderSuite {
       for {
         serviceAccountKeyEither <- app.provide(new FS2ServiceAccountKeyReader with Blocking.Live {}).either
       } yield {
-        assert(serviceAccountKeyEither, equalTo(Left(InvalidJsonFormat(invalidJsonPath))))
+        assert(serviceAccountKeyEither)(equalTo(Left(InvalidJsonFormat(invalidJsonPath))))
       }
     }
   )

@@ -47,16 +47,13 @@ object DefaultAuthenticatorSuite {
       for {
         result <- app.provideManaged(combinedEnv)
       } yield {
-        assert(
-          result,
-          equalTo(
+        assert(result)(equalTo(
             authenticator.AuthResponse(
               accessToken = httpAuthResponse.access_token,
               tokenType = httpAuthResponse.token_type,
               expiresAt = Instant.ofEpochSecond(currentTime + cloudApiClaims.expiresIn.asScala.toSeconds)
             )
-          )
-        )
+          ))
       }
     },
     testM("authenticator returns http error when http service fails") {
@@ -88,10 +85,7 @@ object DefaultAuthenticatorSuite {
 
       val app = Authenticator.>.auth(cloudApiConfig, cloudApiClaims)
 
-      assertM(
-        app.provideManaged(combinedEnv).either,
-        equalTo(Left(HttpError(http.HttpError.ResponseParseError("error"))))
-      )
+      assertM(app.provideManaged(combinedEnv).either)(equalTo(Left(HttpError(http.HttpError.ResponseParseError("error")))))
     },
     testM("authenticator returns sign error when signer service fails") {
       val currentTime = 1000L
@@ -122,7 +116,7 @@ object DefaultAuthenticatorSuite {
 
       val app = Authenticator.>.auth(cloudApiConfig, cloudApiClaims)
 
-      assertM(app.provideManaged(combinedEnv).either, equalTo(Left(SignError(InvalidKey))))
+      assertM(app.provideManaged(combinedEnv).either)(equalTo(Left(SignError(InvalidKey))))
     }
   )
 

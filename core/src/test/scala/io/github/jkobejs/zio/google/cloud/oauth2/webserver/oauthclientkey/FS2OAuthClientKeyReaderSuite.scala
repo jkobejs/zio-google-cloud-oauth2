@@ -17,9 +17,7 @@ object FS2OAuthClientKeyReaderSuite {
 
       for {
         oAuthClientKey <- app.provide(new FS2OAuthClientKeyReader with Blocking.Live {})
-      } yield assert(
-        oAuthClientKey,
-        equalTo(
+      } yield assert(oAuthClientKey)(equalTo(
           OAuthClientKey(
             client_id = "client_id.apps.googleusercontent.com",
             project_id = "project_id_1",
@@ -29,8 +27,7 @@ object FS2OAuthClientKeyReaderSuite {
             client_secret = "client_secret",
             redirect_uris = NonEmptyList.of("http://localhost:8080")
           )
-        )
-      )
+        ))
     },
     testM("fs2 OAuth client key reader fails when file doesn't exist") {
       val nonExistingPath = "core/src/test/resources/non-existing-client_secret.json"
@@ -39,7 +36,7 @@ object FS2OAuthClientKeyReaderSuite {
       for {
         oAuthClientKeyEither <- app.provide(new FS2OAuthClientKeyReader with Blocking.Live {}).either
       } yield {
-        assert(oAuthClientKeyEither, equalTo(Left(FileDoesNotExist(nonExistingPath))))
+        assert(oAuthClientKeyEither)(equalTo(Left(FileDoesNotExist(nonExistingPath))))
       }
     },
     testM("fs2 OAuth client key reader fails when path is invalid") {
@@ -49,7 +46,7 @@ object FS2OAuthClientKeyReaderSuite {
       for {
         oAuthClientKeyEither <- app.provide(new FS2OAuthClientKeyReader with Blocking.Live {}).either
       } yield {
-        assert(oAuthClientKeyEither, equalTo(Left(InvalidPathError(invalidPath))))
+        assert(oAuthClientKeyEither)(equalTo(Left(InvalidPathError(invalidPath))))
       }
     },
     testM("fs2 OAuth client key reader fails for invalid json") {
@@ -59,7 +56,7 @@ object FS2OAuthClientKeyReaderSuite {
       for {
         oAuthClientKeyEither <- app.provide(new FS2OAuthClientKeyReader with Blocking.Live {}).either
       } yield {
-        assert(oAuthClientKeyEither, equalTo(Left(InvalidJsonFormat(invalidJsonPath))))
+        assert(oAuthClientKeyEither)(equalTo(Left(InvalidJsonFormat(invalidJsonPath))))
       }
     }
   )

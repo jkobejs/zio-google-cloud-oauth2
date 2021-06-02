@@ -24,7 +24,7 @@ object Http4sClientSuite {
         grantType = "grant"
       )
 
-      assertM(http4sClient.httpClient.auth(req).either, equalTo(Left(HttpError.UriParseError("Invalid URI"))))
+      assertM(http4sClient.httpClient.auth(req).either)(equalTo(Left(HttpError.UriParseError("Invalid URI"))))
     },
     testM("http4 client fails when response is not success") {
       val client4s = Client[Task](_ => Resource.liftF[Task, Response[Task]](Task.succeed(Response.notFound[Task])))
@@ -39,10 +39,7 @@ object Http4sClientSuite {
         grantType = "grant"
       )
 
-      assertM(
-        http4sClient.httpClient.auth(req).either,
-        equalTo(Left(HttpError.HttpRequestError(status = "404 Not Found", body = "Not found")))
-      )
+      assertM(http4sClient.httpClient.auth(req).either)(equalTo(Left(HttpError.HttpRequestError(status = "404 Not Found", body = "Not found"))))
     },
     testM("http4 client fails when response body is invalid") {
       val client4s = Client[Task](
@@ -62,10 +59,7 @@ object Http4sClientSuite {
         grantType = "grant"
       )
 
-      assertM(
-        http4sClient.httpClient.auth(req).either,
-        equalTo(Left(HttpError.ResponseParseError("Malformed message body: Invalid JSON")))
-      )
+      assertM(http4sClient.httpClient.auth(req).either)(equalTo(Left(HttpError.ResponseParseError("Malformed message body: Invalid JSON"))))
     },
     testM("http4 client succeeds for valid data") {
       val resp = HttpAuthResponse(
@@ -104,7 +98,7 @@ object Http4sClientSuite {
         grantType = "grant"
       )
 
-      assertM(http4sClient.httpClient.auth(req), equalTo(resp))
+      assertM(http4sClient.httpClient.auth(req))(equalTo(resp))
     }
   )
 }

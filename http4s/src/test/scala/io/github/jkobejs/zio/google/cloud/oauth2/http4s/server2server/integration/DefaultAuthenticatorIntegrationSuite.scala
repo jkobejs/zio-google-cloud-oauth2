@@ -51,8 +51,8 @@ object DefaultAuthenticatorIntegrationSuite {
             )
             authResponse <- Authenticator.>.auth(cloudApiConfig, cloudApiClaims).provideManaged(managedResource)
           } yield {
-            assert(authResponse.tokenType, equalTo("Bearer"))
-            assert(authResponse.expiresAt.getEpochSecond() / 3600, equalTo(Instant.now().getEpochSecond() / 3600 + 1))
+            assert(authResponse.tokenType)(equalTo("Bearer"))
+            assert(authResponse.expiresAt.getEpochSecond() / 3600)(equalTo(Instant.now().getEpochSecond() / 3600 + 1))
           }
         }
       )
