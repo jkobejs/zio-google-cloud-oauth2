@@ -1,6 +1,6 @@
 import microsites._
 
-val mainScala = "2.12.10"
+val mainScala = "2.12.15"
 val allScala  = Seq("2.13.1", mainScala)
 
 name := "zio-google-cloud-oauth2"
