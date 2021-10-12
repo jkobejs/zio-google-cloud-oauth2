@@ -185,7 +185,7 @@ lazy val libraryVersion = new {
   val simulacrum       = "1.0.0"
   val magnolia         = "0.12.0"
   val cats             = "2.0.0-RC1"
-  val fs2              = "2.0.1"
+  val fs2              = "2.5.10"
 }
 
 lazy val library =
