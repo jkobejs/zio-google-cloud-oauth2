@@ -176,7 +176,7 @@ def scalacOptionsForVersion(scalaVersion: String): Seq[String] = {
 
 lazy val libraryVersion = new {
   val tsec             = "0.2.0-M1"
-  val http4s           = "0.21.0-M6"
+  val http4s           = "0.21.34"
   val circe            = "0.12.3"
   val zio              = "1.0.0-RC17"
   val zioInteropCats   = "2.0.0.0-RC10"
