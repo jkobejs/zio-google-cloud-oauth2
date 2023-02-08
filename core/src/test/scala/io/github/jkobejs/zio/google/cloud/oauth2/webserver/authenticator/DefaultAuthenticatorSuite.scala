@@ -16,12 +16,9 @@ object DefaultAuthenticatorSuite {
     test("Authenticator correctly generates and escapes auth url") {
 
       val authUrl = Authenticator.>.createAuthUrl(Fixtures.authApiConfig, Fixtures.authRequestParams)
-      assert(
-        authUrl,
-        equalTo(
+      assert(authUrl)(equalTo(
           s"https://accounts.google.com/o/oauth2/auth?client_id=clientId&redirect_uri=http%3A%2F%2Flocalhost%3A8080&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fdevstorage.read_write&access_type=offline&prompt=consent&response_type=code"
-        )
-      )
+        ))
     },
     testM("Authenticator returns access response when authentication succeeds") {
 
@@ -43,17 +40,14 @@ object DefaultAuthenticatorSuite {
 
       for {
         result <- app.provideManaged(combinedEnv)
-      } yield assert(
-        result,
-        equalTo(
+      } yield assert(result)(equalTo(
           AccessResponse(
             "access_token_123",
             "Bearer",
             Instant.ofEpochSecond(Fixtures.currentTime + Fixtures.httpAccessResponse.expires_in),
             "refresh_token_123"
           )
-        )
-      )
+        ))
     },
     testM("Authenticator returns refresh token response when token refreshing succeeds") {
 
@@ -76,16 +70,13 @@ object DefaultAuthenticatorSuite {
 
       for {
         result <- app.provideManaged(combinedEnv)
-      } yield assert(
-        result,
-        equalTo(
+      } yield assert(result)(equalTo(
           RefreshResponse(
             "access_token_234",
             "Bearer",
             Instant.ofEpochSecond(Fixtures.currentTime + Fixtures.httpRefreshResponse.expires_in)
           )
-        )
-      )
+        ))
     },
     testM("Authenticator returns http error when http service fails") {
 
@@ -106,10 +97,7 @@ object DefaultAuthenticatorSuite {
           }
       }
 
-      assertM(
-        app.provideManaged(combinedEnv).either,
-        equalTo(Left(AuthenticationError.HttpError(HttpError.ResponseParseError("error"))))
-      )
+      assertM(app.provideManaged(combinedEnv).either)(equalTo(Left(AuthenticationError.HttpError(HttpError.ResponseParseError("error")))))
     }
   )
 }
